@@ -3,10 +3,26 @@
 buildscript {
 
     repositories {
+        maven {
+            url 'http://maven.aliyun.com/nexus/content/repositories/releases/'
+            allowInsecureProtocol=true
+        }
+        maven{
+            url 'https://maven.aliyun.com/repository/public'
+        }
+        maven {
+            url 'https://maven.aliyun.com/repository/google'
+            allowInsecureProtocol=true
+        }
+        maven {
+            url 'https://maven.aliyun.com/repository/gradle-plugin'
+            allowInsecureProtocol=true
+        }
         google()
         mavenCentral()
     }
     dependencies {
+//        classpath 'com.android.tools.build:gradle:8.0.2'
         classpath 'com.android.tools.build:gradle:8.13.0'
 
         // NOTE: Do not place your application dependencies here; they belong
@@ -16,6 +32,22 @@ buildscript {
 
 allprojects {
     repositories {
+        maven {
+            url 'http://maven.aliyun.com/nexus/content/repositories/releases/'
+            allowInsecureProtocol=true
+        }
+        maven{
+            url 'https://maven.aliyun.com/repository/public'
+            allowInsecureProtocol=true
+        }
+        maven {
+            url 'https://maven.aliyun.com/repository/google'
+            allowInsecureProtocol=true
+        }
+        maven {
+            url 'https://maven.aliyun.com/repository/gradle-plugin'
+            allowInsecureProtocol=true
+        }
         google()
         mavenCentral()
     }
