@@ -1,7 +1,9 @@
 // TessSoLoader.java - 手动加载so库
-package com.genymobile.scrcpy.custom;
+package com.genymobile.scrcpy.custom.ocr;
 
 import android.util.Log;
+
+import com.genymobile.scrcpy.custom.OcrConfig;
 
 import java.io.File;
 import java.io.FileOutputStream;

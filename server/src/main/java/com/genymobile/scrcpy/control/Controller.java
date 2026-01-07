@@ -4,6 +4,10 @@ import com.genymobile.scrcpy.AndroidVersions;
 import com.genymobile.scrcpy.AsyncProcessor;
 import com.genymobile.scrcpy.CleanUp;
 import com.genymobile.scrcpy.Options;
+import com.genymobile.scrcpy.util.Logger;
+import com.genymobile.scrcpy.custom.OcrConfig;
+import com.genymobile.scrcpy.custom.ScreenShotUtils;
+import com.genymobile.scrcpy.custom.TouchMockUtils;
 import com.genymobile.scrcpy.device.Device;
 import com.genymobile.scrcpy.device.DeviceApp;
 import com.genymobile.scrcpy.device.DisplayInfo;
@@ -53,6 +57,7 @@ public class Controller implements AsyncProcessor, VirtualDisplayListener {
      * sent to the virtual display id.
      */
 
+    public static final String TAG = OcrConfig.getLogGroup() + "Controller";
     private static final class DisplayData {
         private final int virtualDisplayId;
         private final PositionMapper positionMapper;
@@ -263,6 +268,9 @@ public class Controller implements AsyncProcessor, VirtualDisplayListener {
             // this is expected on close
             return false;
         }
+        if (msg == null) {
+            return true;
+        }
 
         switch (msg.getType()) {
             case ControlMessage.TYPE_INJECT_KEYCODE:
@@ -331,11 +339,73 @@ public class Controller implements AsyncProcessor, VirtualDisplayListener {
             case ControlMessage.TYPE_RESET_VIDEO:
                 resetVideo();
                 break;
+            case ControlMessage.TYPE_MOCK_CLICK:
+                injectMockClick(msg);
+                break;
+            case ControlMessage.TYPE_MOCK_DOUBLE_CLICK:
+                injectMockDoubleClick(msg);
+                break;
+            case ControlMessage.TYPE_MOCK_DRAG:
+                injectMockDrag(msg);
+                break;
+            case ControlMessage.TYPE_SCREEN_SHOT:
+                ScreenShotUtils.startScreenShot();
+                break;
+            case ControlMessage.TYPE_SLEEP:
+                ScreenShotUtils.sleep(msg.getDuration());
+                break;
             default:
                 // do nothing
         }
 
         return true;
+    }
+
+    private void injectMockClick(ControlMessage msg) {
+        if (msg.getPosition() != null) {
+            Pair<Point, Integer> pair = getEventPointAndDisplayId(msg.getPosition());
+            if (pair == null) {
+                return ;
+            }
+
+            Point point = pair.first;
+            int targetDisplayId = pair.second;
+            TouchMockUtils.mockClick(targetDisplayId,msg.getPosition().getPoint().getX(), msg.getPosition().getPoint().getY());
+        }
+    }
+
+    private void injectMockDoubleClick(ControlMessage msg) {
+        if (msg.getPosition()!=null) {
+            Pair<Point, Integer> pair = getEventPointAndDisplayId(msg.getPosition());
+            if (pair == null) {
+                return ;
+            }
+
+            Point point = pair.first;
+            int targetDisplayId = pair.second;
+            TouchMockUtils.mockDoubleClick(targetDisplayId,msg.getPosition().getPoint().getX(), msg.getPosition().getPoint().getY());
+        }
+    }
+    private void injectMockDrag(ControlMessage msg) {
+        Logger.i(TAG,"injectMockDrag, start");
+        if (msg.getDragEndPosition() != null && msg.getDragEndPosition() != null) {
+            Pair<Point, Integer> pair = getEventPointAndDisplayId(msg.getDragEndPosition());
+            if (pair == null) {
+                return ;
+            }
+
+            Point point = pair.first;
+            int targetDisplayId = pair.second;
+            int startX = msg.getDragStartPosition().getPoint().getX();
+            int startY = msg.getDragStartPosition().getPoint().getY();
+
+            int endX = msg.getDragEndPosition().getPoint().getX();
+            int endY = msg.getDragEndPosition().getPoint().getY();
+            int duration = msg.getDuration();
+            TouchMockUtils.mockDrag(targetDisplayId,startX, startY, endX, endY, duration);
+        }else {
+            Logger.i(TAG,"TYPE_MOCK_DRAG, data exception, msg:" +msg);
+        }
     }
 
     private boolean injectKeycode(int action, int keycode, int repeat, int metaState) {

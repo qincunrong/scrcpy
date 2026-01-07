@@ -1,42 +1,27 @@
 // ParabolicDragService.java
 package com.genymobile.scrcpy.custom;
 
-import android.content.Intent;
 import android.graphics.Point;
 import android.os.SystemClock;
 import android.util.Log;
 import android.view.InputDevice;
-import android.view.InputEvent;
 import android.view.MotionEvent;
 
-import com.genymobile.scrcpy.wrappers.InputManager;
+import com.genymobile.scrcpy.device.Device;
+import com.genymobile.scrcpy.util.Logger;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class ArcDragHelper {
+/**
+ * 生成抛物线轨迹点
+ * 说明：在x1,y1点按下并保持，以弧线方式在timeSpan时间内(单位：毫秒）移动到x2,y2点，并释放。
+ * 要注意的是，弧线方式移动的过程中，要有一开始加速移动，到达目标点时，要减速移动。
+ */
+public class DragMockImpl {
     
-    private static final String TAG = OcrConfig.getLogGroup()+"ArcDragHelper";
-    
-
-    public void start(Intent intent) {
-        if (intent != null) {
-            int startX = intent.getIntExtra("startX", 0);
-            int startY = intent.getIntExtra("startY", 0);
-            int endX = intent.getIntExtra("endX", 0);
-            int endY = intent.getIntExtra("endY", 0);
-            long duration = intent.getLongExtra("duration", 500);
-            
-            new Thread(() -> {
-                performParabolicDrag(startX, startY, endX, endY, duration);
-            }).start();
-        }
-    }
-    
-    /**
-     * 执行抛物线拖动
-     */
-    private void performParabolicDrag(int startX, int startY, 
+    private static final String TAG = OcrConfig.getLogGroup()+"DragMockImpl";
+    public void performParabolicDrag(int displayId,int startX, int startY,
                                      int endX, int endY, long duration) {
         try {
             // 1. 生成轨迹点
@@ -52,25 +37,37 @@ public class ArcDragHelper {
             
             // 3. 按下事件
             Point first = points.get(0);
-            injectMotionEvent(downTime, downTime, 
+            injectMotionEvent(displayId,downTime, downTime,
                 MotionEvent.ACTION_DOWN, first.x, first.y);
             
             // 4. 移动事件
             long stepDelay = duration / (points.size() - 1);
             for (int i = 1; i < points.size(); i++) {
-                SystemClock.sleep(stepDelay);
-                
+                long stepDelayNew = stepDelay;
+                if (i == 1) {
+                    if (stepDelayNew < 500) {
+                        stepDelayNew = 500;
+                    }
+                    Logger.i(TAG, "firstDelay:%d, stepDelay:%d", stepDelayNew, stepDelay);
+                } else if (i == points.size() - 1) {
+                    if (stepDelayNew < 300) {
+                        stepDelayNew = 300;
+                    }
+                    Logger.i(TAG, "lastDelay:%d", stepDelayNew);
+                }
+                SystemClock.sleep(stepDelayNew);
+
                 Point point = points.get(i);
-                long eventTime = downTime + (stepDelay * i);
-                
-                injectMotionEvent(downTime, eventTime,
-                    MotionEvent.ACTION_MOVE, point.x, point.y);
+                long eventTime = downTime + (stepDelayNew * i);
+
+                injectMotionEvent(displayId, downTime, eventTime,
+                        MotionEvent.ACTION_MOVE, point.x, point.y);
             }
             
             // 5. 抬起事件
             Point last = points.get(points.size() - 1);
             long upTime = downTime + duration;
-            injectMotionEvent(downTime, upTime,
+            injectMotionEvent(displayId,downTime, upTime,
                 MotionEvent.ACTION_UP, last.x, last.y);
                 
         } catch (Exception e) {
@@ -78,9 +75,7 @@ public class ArcDragHelper {
         }
     }
     
-    /**
-     * 生成抛物线轨迹点
-     */
+
     private List<Point> generateParabolicPoints(int startX, int startY,
                                                int endX, int endY,
                                                int pointCount, float heightFactor) {
@@ -113,29 +108,14 @@ public class ArcDragHelper {
         return points;
     }
     
-    /**
-     * 注入MotionEvent
-     */
-    private void injectMotionEvent(long downTime, long eventTime,
+    private void injectMotionEvent(int diaplayId,long downTime, long eventTime,
                                   int action, float x, float y) {
         try {
+            Logger.i(TAG,"injectMotionEvent, x:%f, y:%f",x,y);
             MotionEvent event = MotionEvent.obtain(
                 downTime, eventTime, action, x, y, 0);
             event.setSource(InputDevice.SOURCE_TOUCHSCREEN);
-            
-            // 使用反射调用InputManager
-            Class<?> inputManagerClass = Class.forName("android.hardware.input.InputManager");
-            java.lang.reflect.Method getInstanceMethod = 
-                inputManagerClass.getDeclaredMethod("getInstance");
-            Object inputManager = getInstanceMethod.invoke(null);
-            
-            java.lang.reflect.Method injectInputEventMethod = 
-                inputManagerClass.getMethod("injectInputEvent", 
-                    InputEvent.class, int.class);
-            injectInputEventMethod.invoke(inputManager, event, 
-                InputManager.INJECT_INPUT_EVENT_MODE_ASYNC);
-                
-            event.recycle();
+            Device.injectEvent(event, diaplayId, Device.INJECT_MODE_ASYNC);
         } catch (Exception e) {
             Log.e(TAG, "Failed to inject event", e);
         }

@@ -152,23 +152,48 @@ public class OptimizedOcrManager {
             // 设置页面分割模式
             tessApi.setPageSegMode(TessBaseAPI.PageSegMode.PSM_AUTO);
             // 设置白名单（减少误识别）
-            if (currentLanguage.startsWith("eng")) {
-                tessApi.setVariable(TessBaseAPI.VAR_CHAR_WHITELIST, 
-                    "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789");
-            }
+//            if (currentLanguage.startsWith("eng")) {
+//                tessApi.setVariable(TessBaseAPI.VAR_CHAR_WHITELIST,
+//                    "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789");
+//            }
+            String blacklist = "!@#$%^&*()_+-=[]{}|;':\",./<>?~`，。；：" +
+                    "、？《》！￥…（）—【】「」『』；：，。、·" +
+                    "'\"\\|{}[]()<>?!@#$%^&*_+-=;:,./`~";
 
-            // 设置黑名单（可选）
-            // tessApi.setVariable(TessBaseAPI.VAR_CHAR_BLACKLIST, "!@#$%^&*()_+");
+            tessApi.setVariable(TessBaseAPI.VAR_CHAR_BLACKLIST, blacklist);
 
-            // 设置识别引擎模式
-            tessApi.setVariable("tessedit_ocr_engine_mode", "2"); // LSTM only
-            // 优化识别速度
-            tessApi.setVariable("tessedit_pageseg_mode", "6"); // 假设为统一文本块
-            tessApi.setVariable("tessedit_char_whitelist", "");
+            // 语言模型权重调整
+            tessApi.setVariable("language_model_penalty_non_freq_dict_word", "0.1");
+            tessApi.setVariable("language_model_penalty_non_dict_word", "0.15");
+
+            // 字符分割参数
+            tessApi.setVariable("textord_force_make_prop_words", "F");
+            tessApi.setVariable("textord_space_size_is_variable", "T");
+
+            // 启用字典
+            tessApi.setVariable("load_system_dawg", "1");
+            tessApi.setVariable("load_freq_dawg", "1");
+            tessApi.setVariable("load_unambig_dawg", "1");
+            tessApi.setVariable("load_punc_dawg", "1");
+            tessApi.setVariable("load_number_dawg", "1");
+
+            // 特定于中文的参数
+            tessApi.setVariable("chop_enable", "T");
+            tessApi.setVariable("use_new_state_cost", "F");
+            tessApi.setVariable("segment_segcost_rating", "F");
+            tessApi.setVariable("enable_new_segsearch", "1");
+
+            // 设置最小置信度阈值
+            tessApi.setVariable("tessedit_minimal_confidence", "60");
+
+            // 1. 设置只识别文本（可以减少符号误识别）
             tessApi.setVariable("classify_bln_numeric_mode", "0");
-            tessApi.setVariable("textord_debug_tabfind", "0");
-            // 设置置信度阈值
-            tessApi.setVariable("tessedit_minimal_confidence", "70");
+            tessApi.setVariable("tessedit_enable_doc_dict", "0");
+
+            // 3. 设置OCR引擎模式
+// OEM_TESSERACT_ONLY = 只使用Tesseract（不使用LSTM，LSTM有时会引入更多符号）
+            tessApi.setVariable("tessedit_ocr_engine_mode", "1");
+
 
         } catch (Exception e) {
             Log.w(TAG, "Failed to configure Tesseract parameters", e);

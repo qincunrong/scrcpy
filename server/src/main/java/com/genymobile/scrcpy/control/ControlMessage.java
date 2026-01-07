@@ -2,6 +2,8 @@ package com.genymobile.scrcpy.control;
 
 import com.genymobile.scrcpy.device.Position;
 
+import java.io.IOException;
+
 /**
  * Union of all supported event types, identified by their {@code type}.
  */
@@ -25,6 +27,14 @@ public final class ControlMessage {
     public static final int TYPE_OPEN_HARD_KEYBOARD_SETTINGS = 15;
     public static final int TYPE_START_APP = 16;
     public static final int TYPE_RESET_VIDEO = 17;
+
+    //add by qcr
+    public static final int TYPE_MOCK_CLICK = 18; //模拟点击
+    public static final int TYPE_MOCK_DOUBLE_CLICK = 20;//模拟双击
+    public static final int TYPE_MOCK_DRAG = 19;//模拟拖动
+    public static final int TYPE_SCREEN_SHOT=21;//截屏
+    public static final int TYPE_SLEEP=22;//睡眠时间
+    //end add
 
     public static final long SEQUENCE_INVALID = 0;
 
@@ -53,6 +63,11 @@ public final class ControlMessage {
     private boolean on;
     private int vendorId;
     private int productId;
+
+    //add by qcr
+    private int duration;
+    private Position dragStartPosition;
+    private Position dragEndPosition;
 
     private ControlMessage() {
     }
@@ -166,6 +181,44 @@ public final class ControlMessage {
         return msg;
     }
 
+
+    public static ControlMessage createSleepEvent(int sleepDuration) {
+        ControlMessage msg = new ControlMessage();
+        msg.type = TYPE_SLEEP;
+        msg.duration = sleepDuration;
+        return msg;
+    }
+
+    public static ControlMessage createMockClickEvent(Position position) {
+        ControlMessage msg = new ControlMessage();
+        msg.type = TYPE_MOCK_CLICK;
+        msg.position = position;
+        return msg;
+    }
+
+    public static ControlMessage createMockDoubleClickEvent(Position position) {
+        ControlMessage msg = new ControlMessage();
+        msg.type = TYPE_MOCK_DOUBLE_CLICK;
+        msg.position = position;
+        return msg;
+    }
+    public static ControlMessage createMockDragEvent(Position startPosition,Position endPosition, int duration) {
+        ControlMessage msg = new ControlMessage();
+        msg.type = TYPE_MOCK_DRAG;
+        msg.dragStartPosition = startPosition;
+        msg.dragEndPosition = endPosition;
+        msg.duration = duration;
+        return msg;
+    }
+
+    public static ControlMessage createScreenShotEvent() {
+        ControlMessage msg = new ControlMessage();
+        msg.type = TYPE_SCREEN_SHOT;
+        return msg;
+    }
+
+
+
     public int getType() {
         return type;
     }
@@ -249,4 +302,30 @@ public final class ControlMessage {
     public int getProductId() {
         return productId;
     }
+
+    public Position getDragEndPosition() {
+        return dragEndPosition;
+    }
+
+    public void setDragEndPosition(Position dragEndPosition) {
+        this.dragEndPosition = dragEndPosition;
+    }
+
+    public Position getDragStartPosition() {
+        return dragStartPosition;
+    }
+
+    public void setDragStartPosition(Position dragStartPosition) {
+        this.dragStartPosition = dragStartPosition;
+    }
+
+    public int getDuration() {
+        return duration;
+    }
+
+    public void setDuration(int duration) {
+        this.duration = duration;
+    }
+
+
 }

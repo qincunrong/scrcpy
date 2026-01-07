@@ -1,4 +1,4 @@
-package com.genymobile.scrcpy.custom;
+package com.genymobile.scrcpy.custom.bitmap;
 
 import android.graphics.Bitmap;
 

@@ -1,9 +1,10 @@
-package com.genymobile.scrcpy.custom;
+package com.genymobile.scrcpy.custom.bitmap;
 
 import android.util.Log;
 
+import com.genymobile.scrcpy.custom.OcrConfig;
+
 import org.opencv.android.OpenCVLoader;
-import org.opencv.core.Core;
 import org.opencv.core.CvType;
 import org.opencv.core.Mat;
 

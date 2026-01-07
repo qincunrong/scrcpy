@@ -1,4 +1,4 @@
-package com.genymobile.scrcpy.custom;
+package com.genymobile.scrcpy.custom.bitmap;
 
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
@@ -8,7 +8,6 @@ import android.graphics.ColorMatrixColorFilter;
 import android.graphics.Matrix;
 import android.graphics.Paint;
 
-import org.opencv.android.OpenCVLoader;
 import org.opencv.android.Utils;
 import org.opencv.core.Core;
 import org.opencv.core.CvType;
