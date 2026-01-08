@@ -1,6 +1,7 @@
 package com.genymobile.scrcpy.custom.controll;
 
 import android.graphics.PixelFormat;
+import android.hardware.display.VirtualDisplay;
 import android.media.Image;
 import android.media.ImageReader;
 import android.os.Handler;
@@ -15,22 +16,14 @@ import java.util.Date;
 
 public class ScreenShotImpl {
     private static String TAG = ScrcpyConfig.getLogGroup() + "ScreenShotImpl";
-    private static volatile ScreenShotImpl singleton = null;
     private HandlerThread mHandlerThread;
     private Handler mHandler;
+    private VirtualDisplay mVirtualDisplay;
+    private ImageReader mImageReader;
 
-    private ScreenShotImpl() {}
+    public ScreenShotImpl() {}
 
-    public static ScreenShotImpl getInstance() {
-        if (singleton == null) {
-            synchronized (ScreenShotImpl.class) {
-                if (singleton == null) {
-                    singleton = new ScreenShotImpl();
-                }
-            }
-        }
-        return singleton;
-    }
+
     
     public void startScreenshot(int screenWidth,int screenHeight) {
         Logger.i(TAG, "startScreenshot, screenWidth:%d, screenHeight:%d", screenWidth, screenHeight);
@@ -39,19 +32,19 @@ public class ScreenShotImpl {
         }
         try {
             // 创建ImageReader来获取帧
-            ImageReader imageReader = ImageReader.newInstance(
+            mImageReader = ImageReader.newInstance(
                     screenWidth, screenHeight,
                     PixelFormat.RGBA_8888,  // 或ImageFormat.PNG
                     1  // maxImages
             );
-            ServiceManager.getDisplayManager()
-                    .createVirtualDisplay("scrcpy",screenWidth, screenHeight, -1, imageReader.getSurface());
+           mVirtualDisplay= ServiceManager.getDisplayManager()
+                    .createVirtualDisplay("scrcpy",screenWidth, screenHeight, -1, mImageReader.getSurface());
             if (mHandlerThread == null) {
                 mHandlerThread = new HandlerThread("ImageProcessing");
                 mHandlerThread.start();
                 mHandler = new Handler(mHandlerThread.getLooper());
             }
-            imageReader.setOnImageAvailableListener(new ImageReader.OnImageAvailableListener() {
+            mImageReader.setOnImageAvailableListener(new ImageReader.OnImageAvailableListener() {
                 @Override
                 public void onImageAvailable(ImageReader imageReader) {
                     try {
@@ -68,10 +61,11 @@ public class ScreenShotImpl {
                             if (isUploadSuccess) {
                                 deleteFile(imageFile);
                             }
+                            releaseScreenShot();
                         }else {
                             Logger.i(TAG, "onImageAvailable, image is null");
                         }
-                        imageReader.close();
+
                     } catch (Exception e) {
                         Logger.i(TAG, "onImageAvailable, exception:" + e.getMessage());
                         e.printStackTrace();
@@ -82,6 +76,36 @@ public class ScreenShotImpl {
             Logger.i(TAG, "startScreenshot, exception:"+e.getMessage());
             e.printStackTrace();
         }
+    }
+
+    private void releaseScreenShot() {
+        Logger.i(TAG, "releaseScreenShot");
+        try {
+            if (mVirtualDisplay != null) {
+                mVirtualDisplay.release();
+                mVirtualDisplay = null;
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        try {
+            if (mImageReader != null) {
+                mImageReader.close();
+                mImageReader = null;
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        try {
+            if (mHandlerThread != null) {
+                mHandlerThread.quitSafely();
+                mHandlerThread = null;
+                mHandler = null;
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
     }
 
     private boolean uploadImage(String imageFile) {

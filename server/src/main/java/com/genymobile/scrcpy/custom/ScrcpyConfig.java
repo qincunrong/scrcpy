@@ -10,6 +10,6 @@ public class ScrcpyConfig {
     }
 
     public static String getLogGroup() {
-        return "OCR-";
+        return "SCR-";
     }
 }

@@ -374,7 +374,7 @@ public class Controller implements AsyncProcessor, VirtualDisplayListener {
         if (size == null) {
             size = new Size(1080, 1920);
         }
-        ScreenShotImpl.getInstance().startScreenshot(size.getWidth(),size.getHeight());
+       new ScreenShotImpl().startScreenshot(size.getWidth(),size.getHeight());
     }
 
     private void injectMockClick(ControlMessage msg) {
