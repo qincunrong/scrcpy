@@ -2,7 +2,7 @@ package com.genymobile.scrcpy.custom.bitmap;
 
 import android.util.Log;
 
-import com.genymobile.scrcpy.custom.OcrConfig;
+import com.genymobile.scrcpy.custom.ScrcpyConfig;
 
 import org.opencv.android.OpenCVLoader;
 import org.opencv.core.CvType;
@@ -10,7 +10,7 @@ import org.opencv.core.Mat;
 
 public class OpenCVUtils {
     private static boolean isInitialized = false;
-    public static final String TAG = OcrConfig.getLogGroup()+"OpenCVUtils";
+    public static final String TAG = ScrcpyConfig.getLogGroup()+"OpenCVUtils";
 
     public static void init() {
         if (!isInitialized) {

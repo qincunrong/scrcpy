@@ -9,7 +9,7 @@ import android.graphics.YuvImage;
 import android.media.Image;
 import android.util.Log;
 
-import com.genymobile.scrcpy.custom.OcrConfig;
+import com.genymobile.scrcpy.custom.ScrcpyConfig;
 import com.genymobile.scrcpy.util.FileUtils;
 import com.genymobile.scrcpy.util.Logger;
 
@@ -21,7 +21,7 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 
 public class ScreenShotImageConverter {
-    private static final String TAG = OcrConfig.getLogGroup()+ "ScreenShotConverter";
+    private static final String TAG = ScrcpyConfig.getLogGroup()+ "ScreenShotConverter";
     private String mImagePath;
     public ScreenShotImageConverter(String imagePath) {
         mImagePath = imagePath;

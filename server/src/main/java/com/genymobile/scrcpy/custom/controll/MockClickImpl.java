@@ -4,14 +4,14 @@ import android.os.SystemClock;
 import android.view.InputDevice;
 import android.view.MotionEvent;
 
-import com.genymobile.scrcpy.custom.OcrConfig;
+import com.genymobile.scrcpy.custom.ScrcpyConfig;
 import com.genymobile.scrcpy.device.Device;
 import com.genymobile.scrcpy.util.Logger;
 
 
 public class MockClickImpl {
 
-    private static final String TAG = OcrConfig.getLogGroup()+"MockClickImpl";
+    private static final String TAG = ScrcpyConfig.getLogGroup()+"MockClickImpl";
     public void startClick(int displayId,int startX, int startY) {
         try {
             Logger.i(TAG,"startClick, x:%d, y:%d",startX,startY);

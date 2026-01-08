@@ -1,7 +1,6 @@
 // OptimizedOcrManager.java
 package com.genymobile.scrcpy.custom.ocr;
 
-import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
@@ -9,19 +8,15 @@ import android.graphics.ImageFormat;
 import android.graphics.Rect;
 import android.graphics.YuvImage;
 import android.media.Image;
-import android.util.Base64;
 import android.util.Log;
 import android.util.LruCache;
 
-import com.genymobile.scrcpy.custom.OcrConfig;
+import com.genymobile.scrcpy.custom.ScrcpyConfig;
 import com.googlecode.tesseract.android.TessBaseAPI;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -34,7 +29,7 @@ import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 
 public class OptimizedOcrManager {
-    private static final String TAG = OcrConfig.getLogGroup()+"OptimizedOcr";
+    private static final String TAG = ScrcpyConfig.getLogGroup()+"OptimizedOcr";
     private static final int DEFAULT_THREAD_POOL_SIZE = 2;
     private static final long OCR_TIMEOUT_MS = 5000;
     
@@ -121,7 +116,7 @@ public class OptimizedOcrManager {
      */
     private File prepareTessData() throws IOException {
         // 数据目录：/data/local/tmp/scrcpy/assets/
-        File tessDataDir = new File(OcrConfig.getBaseAssetsDir(), "tessdata");
+        File tessDataDir = new File(ScrcpyConfig.getBaseAssetsDir(), "tessdata");
         if (!tessDataDir.exists()) {
             if (!tessDataDir.mkdirs()) {
                 Log.e(TAG, "prepareTessData, failed to create assets directory");
@@ -623,7 +618,7 @@ public class OptimizedOcrManager {
                 tessApi.end();
                 tessApi = new TessBaseAPI();
                 
-                File tessDir = new File(OcrConfig.getBaseAssetsDir(), "tessdata").getParentFile();
+                File tessDir = new File(ScrcpyConfig.getBaseAssetsDir(), "tessdata").getParentFile();
                 boolean result = tessApi.init(tessDir.getAbsolutePath(), language);
                 
                 if (result ) {

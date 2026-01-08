@@ -4,14 +4,14 @@ import android.os.SystemClock;
 import android.view.InputDevice;
 import android.view.MotionEvent;
 
-import com.genymobile.scrcpy.custom.OcrConfig;
+import com.genymobile.scrcpy.custom.ScrcpyConfig;
 import com.genymobile.scrcpy.device.Device;
 import com.genymobile.scrcpy.util.Logger;
 
 
 public class MockDoubleClickImpl {
     
-    private static final String TAG = OcrConfig.getLogGroup()+"MockDoubleClickImpl";
+    private static final String TAG = ScrcpyConfig.getLogGroup()+"MockDoubleClickImpl";
     public void startDoubleClick(int displayId, int startX, int startY) {
         try {
 

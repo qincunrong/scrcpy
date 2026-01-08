@@ -6,7 +6,7 @@ import android.os.SystemClock;
 import android.view.InputDevice;
 import android.view.MotionEvent;
 
-import com.genymobile.scrcpy.custom.OcrConfig;
+import com.genymobile.scrcpy.custom.ScrcpyConfig;
 import com.genymobile.scrcpy.device.Device;
 import com.genymobile.scrcpy.util.Logger;
 
@@ -20,7 +20,7 @@ import java.util.List;
  */
 public class MockDragImpl {
     
-    private static final String TAG = OcrConfig.getLogGroup()+"MockDragImpl";
+    private static final String TAG = ScrcpyConfig.getLogGroup()+"MockDragImpl";
     public void startDrag(int displayId, int startX, int startY,
                           int endX, int endY, long duration) {
         try {

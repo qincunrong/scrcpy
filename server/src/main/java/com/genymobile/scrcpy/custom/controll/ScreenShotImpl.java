@@ -6,16 +6,15 @@ import android.media.ImageReader;
 import android.os.Handler;
 import android.os.HandlerThread;
 
-import com.genymobile.scrcpy.custom.OcrConfig;
+import com.genymobile.scrcpy.custom.ScrcpyConfig;
 import com.genymobile.scrcpy.util.Logger;
 import com.genymobile.scrcpy.wrappers.ServiceManager;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.Locale;
 
 public class ScreenShotImpl {
-    private static String TAG = OcrConfig.getLogGroup() + "ScreenShotImpl";
+    private static String TAG = ScrcpyConfig.getLogGroup() + "ScreenShotImpl";
     private static volatile ScreenShotImpl singleton = null;
     private HandlerThread mHandlerThread;
     private Handler mHandler;
@@ -62,7 +61,7 @@ public class ScreenShotImpl {
                         if (image != null) {
                             String timeStamp = new SimpleDateFormat("yyyyMMdd-HHmmss").format(new Date());
                             String fileName = "screenshot_" + timeStamp;
-                            ScreenShotImageConverter capture = new ScreenShotImageConverter(OcrConfig.getBaseDir());
+                            ScreenShotImageConverter capture = new ScreenShotImageConverter(ScrcpyConfig.getBaseDir());
                             String imageFile = capture.saveImageToPng(image, fileName);
                             boolean isUploadSuccess = uploadImage(imageFile);
                             Logger.i(TAG, "uploadImage result:%b", isUploadSuccess);

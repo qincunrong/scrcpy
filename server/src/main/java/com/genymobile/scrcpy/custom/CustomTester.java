@@ -12,7 +12,7 @@ import com.genymobile.scrcpy.custom.ocr.OptimizedOcrManager;
 import java.io.File;
 
 public class CustomTester {
-    public static final String TAG = OcrConfig.getLogGroup()+"CustomTester";
+    public static final String TAG = ScrcpyConfig.getLogGroup()+"CustomTester";
     public static void test() {
         try {
 //            Log.i(TAG, "loadTessLibraries  start" );
@@ -41,7 +41,7 @@ public class CustomTester {
     public static void testOcr() {
         try {
             Log.i(TAG, "recognizeAsync start " );
-            File tempDir = new File(OcrConfig.getBaseAssetsDir(), "tessdata/test1.jpg");
+            File tempDir = new File(ScrcpyConfig.getBaseAssetsDir(), "tessdata/test1.jpg");
             Log.i(TAG, "imageFile:"+tempDir );
             Bitmap bitmap = BitmapFactory.decodeFile(tempDir.getAbsolutePath());
             Log.i(TAG, "imageBitmap src:"+bitmap );

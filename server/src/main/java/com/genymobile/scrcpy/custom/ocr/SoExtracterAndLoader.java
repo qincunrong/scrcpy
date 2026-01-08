@@ -6,7 +6,7 @@ import android.os.Build;
 import android.system.Os;
 import android.util.Log;
 
-import com.genymobile.scrcpy.custom.OcrConfig;
+import com.genymobile.scrcpy.custom.ScrcpyConfig;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -17,7 +17,7 @@ import java.lang.reflect.Field;
 import java.util.List;
 
 public class SoExtracterAndLoader {
-    private static final String TAG = OcrConfig.getLogGroup()+ "TessSoLoader";
+    private static final String TAG = ScrcpyConfig.getLogGroup()+ "TessSoLoader";
     private static boolean isLoaded = false;
     
     // tess-two 依赖的 so 库列表（按依赖顺序）

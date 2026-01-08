@@ -1,6 +1,6 @@
 package com.genymobile.scrcpy.custom;
 
-public class OcrConfig {
+public class ScrcpyConfig {
     public static String getBaseDir() {
         return "/data/local/tmp/scrcpy";
     }

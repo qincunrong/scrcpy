@@ -10,7 +10,7 @@ import com.genymobile.scrcpy.custom.controll.MockDragImpl;
 import com.genymobile.scrcpy.custom.controll.ScreenShotImpl;
 import com.genymobile.scrcpy.custom.controll.SleepImpl;
 import com.genymobile.scrcpy.util.Logger;
-import com.genymobile.scrcpy.custom.OcrConfig;
+import com.genymobile.scrcpy.custom.ScrcpyConfig;
 import com.genymobile.scrcpy.device.Device;
 import com.genymobile.scrcpy.device.DeviceApp;
 import com.genymobile.scrcpy.device.DisplayInfo;
@@ -60,7 +60,7 @@ public class Controller implements AsyncProcessor, VirtualDisplayListener {
      * sent to the virtual display id.
      */
 
-    public static final String TAG = OcrConfig.getLogGroup() + "Controller";
+    public static final String TAG = ScrcpyConfig.getLogGroup() + "Controller";
     private static final class DisplayData {
         private final int virtualDisplayId;
         private final PositionMapper positionMapper;

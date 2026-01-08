@@ -3,7 +3,7 @@ package com.genymobile.scrcpy.custom.ocr;
 
 import android.util.Log;
 
-import com.genymobile.scrcpy.custom.OcrConfig;
+import com.genymobile.scrcpy.custom.ScrcpyConfig;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -12,9 +12,9 @@ import java.io.InputStream;
 import java.io.OutputStream;
 
 public class AssetsExtractor {
-    private static final String TAG = OcrConfig.getLogGroup()+"AssetsFileExtractor";
+    private static final String TAG = ScrcpyConfig.getLogGroup()+"AssetsFileExtractor";
     private static boolean isLoaded = false;
-    private static String mBaseDir=OcrConfig.getBaseAssetsDir();
+    private static String mBaseDir= ScrcpyConfig.getBaseAssetsDir();
     private static final String ASSETS_SO_DIR = "/assets";
     private static final String[] ASSETS_FILES = {
             "chi_sim.traineddata",
