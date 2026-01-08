@@ -210,6 +210,14 @@ public final class Device {
         }
     }
 
+    public static Size getDisplaySize(int displayId) {
+        assert displayId != DISPLAY_ID_NONE;
+        DisplayInfo displayInfo = ServiceManager.getDisplayManager().getDisplayInfo(displayId);
+        if (displayInfo == null) {
+            return null;
+        }
+        return displayInfo.getSize();
+    }
     private static int getCurrentRotation(int displayId) {
         assert displayId != DISPLAY_ID_NONE;
 

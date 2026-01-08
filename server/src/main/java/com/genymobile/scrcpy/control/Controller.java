@@ -4,10 +4,13 @@ import com.genymobile.scrcpy.AndroidVersions;
 import com.genymobile.scrcpy.AsyncProcessor;
 import com.genymobile.scrcpy.CleanUp;
 import com.genymobile.scrcpy.Options;
+import com.genymobile.scrcpy.custom.controll.MockClickImpl;
+import com.genymobile.scrcpy.custom.controll.MockDoubleClickImpl;
+import com.genymobile.scrcpy.custom.controll.MockDragImpl;
+import com.genymobile.scrcpy.custom.controll.ScreenShotImpl;
+import com.genymobile.scrcpy.custom.controll.SleepImpl;
 import com.genymobile.scrcpy.util.Logger;
 import com.genymobile.scrcpy.custom.OcrConfig;
-import com.genymobile.scrcpy.custom.ScreenShotUtils;
-import com.genymobile.scrcpy.custom.TouchMockUtils;
 import com.genymobile.scrcpy.device.Device;
 import com.genymobile.scrcpy.device.DeviceApp;
 import com.genymobile.scrcpy.device.DisplayInfo;
@@ -271,6 +274,10 @@ public class Controller implements AsyncProcessor, VirtualDisplayListener {
         if (msg == null) {
             return true;
         }
+        if (SleepImpl.getInstance().isSleep()) {
+            Logger.i(TAG,"handleEvent isSleeping, ignore, ");
+            return true;
+        }
 
         switch (msg.getType()) {
             case ControlMessage.TYPE_INJECT_KEYCODE:
@@ -349,16 +356,25 @@ public class Controller implements AsyncProcessor, VirtualDisplayListener {
                 injectMockDrag(msg);
                 break;
             case ControlMessage.TYPE_SCREEN_SHOT:
-                ScreenShotUtils.startScreenShot();
+                startScreenShot();
                 break;
             case ControlMessage.TYPE_SLEEP:
-                ScreenShotUtils.sleep(msg.getDuration());
+                SleepImpl.getInstance().start(msg.getDuration());
                 break;
             default:
                 // do nothing
         }
 
         return true;
+    }
+
+    private void startScreenShot() {
+        Size size = Device.getDisplaySize(getActionDisplayId());
+        Logger.i(TAG, "startScreenShot, size:"+ size);
+        if (size == null) {
+            size = new Size(1080, 1920);
+        }
+        ScreenShotImpl.getInstance().startScreenshot(size.getWidth(),size.getHeight());
     }
 
     private void injectMockClick(ControlMessage msg) {
@@ -370,7 +386,8 @@ public class Controller implements AsyncProcessor, VirtualDisplayListener {
 
             Point point = pair.first;
             int targetDisplayId = pair.second;
-            TouchMockUtils.mockClick(targetDisplayId,msg.getPosition().getPoint().getX(), msg.getPosition().getPoint().getY());
+            MockClickImpl impl = new MockClickImpl();
+            impl.startClick(targetDisplayId,msg.getPosition().getPoint().getX(), msg.getPosition().getPoint().getY());
         }
     }
 
@@ -383,7 +400,8 @@ public class Controller implements AsyncProcessor, VirtualDisplayListener {
 
             Point point = pair.first;
             int targetDisplayId = pair.second;
-            TouchMockUtils.mockDoubleClick(targetDisplayId,msg.getPosition().getPoint().getX(), msg.getPosition().getPoint().getY());
+            MockDoubleClickImpl impl = new MockDoubleClickImpl();
+            impl.startDoubleClick(targetDisplayId,msg.getPosition().getPoint().getX(), msg.getPosition().getPoint().getY());
         }
     }
     private void injectMockDrag(ControlMessage msg) {
@@ -402,7 +420,8 @@ public class Controller implements AsyncProcessor, VirtualDisplayListener {
             int endX = msg.getDragEndPosition().getPoint().getX();
             int endY = msg.getDragEndPosition().getPoint().getY();
             int duration = msg.getDuration();
-            TouchMockUtils.mockDrag(targetDisplayId,startX, startY, endX, endY, duration);
+            MockDragImpl helper = new MockDragImpl();
+            helper.startDrag(displayId, startX, startY, endX, endY, duration);
         }else {
             Logger.i(TAG,"TYPE_MOCK_DRAG, data exception, msg:" +msg);
         }

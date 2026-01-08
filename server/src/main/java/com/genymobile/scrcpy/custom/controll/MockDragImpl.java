@@ -1,12 +1,12 @@
 // ParabolicDragService.java
-package com.genymobile.scrcpy.custom;
+package com.genymobile.scrcpy.custom.controll;
 
 import android.graphics.Point;
 import android.os.SystemClock;
-import android.util.Log;
 import android.view.InputDevice;
 import android.view.MotionEvent;
 
+import com.genymobile.scrcpy.custom.OcrConfig;
 import com.genymobile.scrcpy.device.Device;
 import com.genymobile.scrcpy.util.Logger;
 
@@ -18,11 +18,11 @@ import java.util.List;
  * 说明：在x1,y1点按下并保持，以弧线方式在timeSpan时间内(单位：毫秒）移动到x2,y2点，并释放。
  * 要注意的是，弧线方式移动的过程中，要有一开始加速移动，到达目标点时，要减速移动。
  */
-public class DragMockImpl {
+public class MockDragImpl {
     
-    private static final String TAG = OcrConfig.getLogGroup()+"DragMockImpl";
-    public void performParabolicDrag(int displayId,int startX, int startY,
-                                     int endX, int endY, long duration) {
+    private static final String TAG = OcrConfig.getLogGroup()+"MockDragImpl";
+    public void startDrag(int displayId, int startX, int startY,
+                          int endX, int endY, long duration) {
         try {
             // 1. 生成轨迹点
             List<Point> points = generateParabolicPoints(
@@ -71,7 +71,7 @@ public class DragMockImpl {
                 MotionEvent.ACTION_UP, last.x, last.y);
                 
         } catch (Exception e) {
-            Log.e(TAG, "Parabolic drag failed", e);
+            Logger.e(TAG, "startDrag, exception:", e);
         }
     }
     
@@ -117,7 +117,7 @@ public class DragMockImpl {
             event.setSource(InputDevice.SOURCE_TOUCHSCREEN);
             Device.injectEvent(event, diaplayId, Device.INJECT_MODE_ASYNC);
         } catch (Exception e) {
-            Log.e(TAG, "Failed to inject event", e);
+            Logger.e(TAG, "injectMotionEvent， exception:", e);
         }
     }
 
