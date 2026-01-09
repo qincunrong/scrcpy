@@ -6,7 +6,7 @@ import com.genymobile.scrcpy.CleanUp;
 import com.genymobile.scrcpy.Options;
 import com.genymobile.scrcpy.custom.controll.MockClickImpl;
 import com.genymobile.scrcpy.custom.controll.MockDoubleClickImpl;
-import com.genymobile.scrcpy.custom.controll.MockDragImpl;
+import com.genymobile.scrcpy.custom.controll.ParabolicDragSimulator;
 import com.genymobile.scrcpy.custom.controll.ScreenShotImpl;
 import com.genymobile.scrcpy.custom.controll.SleepImpl;
 import com.genymobile.scrcpy.util.Logger;
@@ -420,8 +420,45 @@ public class Controller implements AsyncProcessor, VirtualDisplayListener {
             int endX = msg.getDragEndPosition().getPoint().getX();
             int endY = msg.getDragEndPosition().getPoint().getY();
             int duration = msg.getDuration();
-            MockDragImpl helper = new MockDragImpl();
-            helper.startDrag(displayId, startX, startY, endX, endY, duration);
+            duration = 10000;
+//            MockDragImpl helper = new MockDragImpl();
+//            helper.startDrag(displayId, startX, startY, endX, endY, duration);
+
+            // 假设屏幕尺寸为1080x2400
+            int screenWidth = 1080;
+            int screenHeight = 2400;
+
+            // 时间参数
+//            int totalDuration = duration;  // 移动总时间800ms
+//            int startDelay = 100;     // DOWN后延迟300ms
+//            int endDelay = 100;       // UP前延迟200ms
+//            float peakRatio = 0.5f;  // 抛物线高度比例
+
+            // 创建模拟器（开启调试模式）
+//            EnhancedParabolicDragSimulator simulator =
+//                    new EnhancedParabolicDragSimulator(screenWidth, screenHeight, true,targetDisplayId);
+//
+//            // 执行抛物线拖动
+//            simulator.simulateEnhancedParabolicDrag(
+//                    startX, startY, endX, endY,
+//                    totalDuration, startDelay, endDelay, peakRatio
+//            );
+            ParabolicDragSimulator simulator = new ParabolicDragSimulator(screenWidth, screenHeight, true, targetDisplayId);
+            ParabolicDragSimulator.DragConfig config = new ParabolicDragSimulator.DragConfig(
+                    startX, startY, endX, endY
+            );
+            // 时间参数
+            int totalDuration = 10000;  // 移动总时间800ms
+            int startDelay = 200;     // DOWN后延迟300ms
+            int endDelay = 200;       // UP前延迟200ms
+            float peakRatio = 0.2f;  // 抛物线高度比例
+            config.setMaxInterval(16);
+            config.setMinInterval(16);
+            config.setTotalDuration(totalDuration-startDelay-endDelay);
+            config.setParabolaHeightRatio(peakRatio);
+            config.setStartDelay(startDelay);
+            config.setEndDelay(endDelay);
+            simulator.safeParabolicDragWithTimeout(config);
         }else {
             Logger.i(TAG,"TYPE_MOCK_DRAG, data exception, msg:" +msg);
         }
