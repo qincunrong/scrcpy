@@ -100,7 +100,8 @@ public class ArcCircleDragImpl {
         int steps = calculateOptimalSteps(config.totalDuration, config.minInterval, config.maxInterval);
 
         logDebug("生成 " + steps + " 个轨迹点，总时间: " + config.totalDuration + "ms");
-        List<Point> pointList= ArcCalculator.calculateArcPoints(trajectory.start, trajectory.end, trajectory.arcHeight, steps);
+//        List<Point> pointList= ArcCalculator.calculateArcPoints(trajectory.start, trajectory.end, trajectory.arcHeight, steps);
+        List<Point> pointList= ArcCalculator.calculateArcPointsAcceDec(trajectory.start, trajectory.end, trajectory.arcHeight, steps);
         for (int i = 0; i < pointList.size(); i++) {
             DragPoint dragPoint = new DragPoint();
             Point pointItem = pointList.get(i);

@@ -19,26 +19,46 @@ public class ArcCalculator {
         // 计算直线方向向量
         double dx = end.x - start.x;
         double dy = end.y - start.y;
-        
-        // 计算直线的长度
-        double lineLength = distance(start, end);
-        
-        // 计算直线的法向量（垂直方向）
-        // 法向量为 (-dy, dx) 或 (dy, -dx)，我们取上半部分所以取一个方向
-        // 对于"上半部分"，我们需要确定方向。这里假设从start到end，左侧为上半部分
-        double normalX = -dy;
-        double normalY = dx;
-        
-        // 单位化法向量
-        double normalLength = Math.sqrt(normalX * normalX + normalY * normalY);
-        if (normalLength > 0) {
-            normalX /= normalLength;
-            normalY /= normalLength;
+
+        // 直线长度
+        double lineLength = Math.sqrt(dx * dx + dy * dy);
+
+        // 单位方向向量
+        double ux = dx / lineLength;
+        double uy = dy / lineLength;
+
+        // 法向量（垂直方向）- 选择左侧的法向量
+        // 顺时针旋转90度得到指向左侧的法向量
+        double nx = uy;   // 旋转矩阵: [0, -1; 1, 0] * [ux, uy]^T = [-uy, ux]
+        double ny = -ux;  // 但我们需要左侧，所以取反
+        if (ux < 0) {
+            ny = ux;
         }
+
+        // 3. 计算圆心 - 确保圆心在中点左侧
+        // 圆心的 x 坐标应该小于中点的 x 坐标
+        double cX = midX + length0 * nx;
+        double cY = midY + length0 * ny;
         
-        // C点在中点的垂直方向上，距离为length0
-        double cX = midX + normalX * length0;
-        double cY = midY + normalY * length0;
+//        // 计算直线的长度
+//        double lineLength = distance(start, end);
+//
+//        // 计算直线的法向量（垂直方向）
+//        // 法向量为 (-dy, dx) 或 (dy, -dx)，我们取上半部分所以取一个方向
+//        // 对于"上半部分"，我们需要确定方向。这里假设从start到end，左侧为上半部分
+//        double normalX = dx;
+//        double normalY = dy;
+//
+//        // 单位化法向量
+//        double normalLength = Math.sqrt(normalX * normalX + normalY * normalY);
+//        if (normalLength > 0) {
+//            normalX /= normalLength;
+//            normalY /= normalLength;
+//        }
+//
+//        // C点在中点的垂直方向上，距离为length0
+//        double cX = midX + normalX * length0;
+//        double cY = midY + normalY * length0;
         
         return new Point(cX, cY);
     }
@@ -119,7 +139,93 @@ public class ArcCalculator {
         
         return arcPoints;
     }
-    
+    public static List<Point> calculateArcPointsAcceDec(Point start, Point end, double length0, int numPoints) {
+        List<Point> arcPoints = new ArrayList<>();
+
+        // 1. 计算C点
+        Point pointC = calculatePointC(start, end, length0);
+
+        // 2. 计算圆心
+        Point center = calculateCircleCenter(start, pointC, end);
+
+        // 3. 计算半径
+        double radius = distance(center, start);
+
+        // 4. 计算起始角度和结束角度
+        double startAngle = Math.atan2(start.y - center.y, start.x - center.x);
+        double endAngle = Math.atan2(end.y - center.y, end.x - center.x);
+
+        // 确保角度正确（考虑方向）
+        double angleC = Math.atan2(pointC.y - center.y, pointC.x - center.x);
+
+        // 调整角度，确保经过C点
+        if (startAngle > endAngle) {
+            if (angleC > endAngle && angleC < startAngle) {
+                // C点在中间，不需要调整
+            } else {
+                endAngle += 2 * Math.PI;
+                if (angleC < startAngle) {
+                    angleC += 2 * Math.PI;
+                }
+            }
+        } else {
+            if (angleC < startAngle || angleC > endAngle) {
+                // 需要调整
+                startAngle += 2 * Math.PI;
+                if (angleC < endAngle) {
+                    angleC += 2 * Math.PI;
+                }
+            }
+        }
+        arcPoints.add(new Point(start.x, start.y));
+        // 5. 生成圆弧上的点
+        for (int i = 1; i < numPoints; i++) {
+            double t = (double) i / numPoints;
+            double adjustedT=t;//默认是匀速的
+            String densityType = "MIDDLE_SPARSE";
+            switch (densityType) {
+                case "MIDDLE_SPARSE":
+                    // 中间稀疏，两端密集
+                    adjustedT = 0.5 * (1 - Math.cos(Math.PI * t));
+                    break;
+
+                case "MIDDLE_DENSE":
+                    // 中间密集，两端稀疏
+                    adjustedT = Math.sin(Math.PI * t / 2);
+                    break;
+
+                case "SMOOTH":
+                    // 平滑变化
+                    adjustedT = t * t * (3 - 2 * t); // 平滑的S曲线
+                    break;
+
+                case "QUADRATIC":
+                    // 二次变化
+                    if (t < 0.5) {
+                        adjustedT = 2 * t * t;
+                    } else {
+                        adjustedT = 1 - 2 * (1 - t) * (1 - t);
+                    }
+                    break;
+                default:
+                    adjustedT=t;//默认是匀速的
+                    break;
+            }
+            double angle = startAngle + (endAngle - startAngle) * adjustedT;
+            double x = center.x + radius * Math.cos(angle);
+            double y = center.y + radius * Math.sin(angle);
+//            double angle = startAngle + (endAngle - startAngle) * t;
+//            double x = center.x + radius * Math.cos(angle);
+//            double y = center.y + radius * Math.sin(angle);
+            arcPoints.add(new Point(x, y));
+        }
+        double x = end.x ;
+        double y = end.y;
+        arcPoints.add(new Point(x, y));
+        return arcPoints;
+    }
+
+
     // 简化的Point类
 
 }
