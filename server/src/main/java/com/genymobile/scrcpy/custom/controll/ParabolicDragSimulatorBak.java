@@ -11,7 +11,7 @@ import com.genymobile.scrcpy.util.Logger;
 import java.util.ArrayList;
 import java.util.List;
 
-public class ParabolicDragSimulator1 {
+public class ParabolicDragSimulatorBak {
     private final int screenWidth;
     private final int screenHeight;
     private final boolean debugMode;
@@ -19,7 +19,7 @@ public class ParabolicDragSimulator1 {
     private long mDownTime;
     public static final String TAG = ScrcpyConfig.getLogGroup() + "DragSimulator";
 
-    public ParabolicDragSimulator1(int width, int height, boolean debug, int displayId) {
+    public ParabolicDragSimulatorBak(int width, int height, boolean debug, int displayId) {
         this.screenWidth = width;
         this.screenHeight = height;
         this.debugMode = debug;
@@ -488,8 +488,8 @@ public class ParabolicDragSimulator1 {
         int screenHeight = 2400;
         
         // 创建模拟器（开启调试模式）
-        ParabolicDragSimulator1 simulator =
-            new ParabolicDragSimulator1(screenWidth, screenHeight, true,0);
+        ParabolicDragSimulatorBak simulator =
+            new ParabolicDragSimulatorBak(screenWidth, screenHeight, true,0);
         
         // 拖动参数
         int startX = 200;

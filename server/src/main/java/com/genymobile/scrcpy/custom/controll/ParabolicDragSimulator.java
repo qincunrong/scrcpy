@@ -1,6 +1,5 @@
 package com.genymobile.scrcpy.custom.controll;
 
-import android.os.Build;
 import android.os.SystemClock;
 import android.view.InputDevice;
 import android.view.MotionEvent;
@@ -27,20 +26,7 @@ public class ParabolicDragSimulator {
         this.mDisplayId = displayId;
     }
 
-    /**
-     * 执行抛物线拖动
-     */
-    public void executeParabolicDrag(int startX, int startY, int endX, int endY) {
-        DragConfig config = new DragConfig(startX, startY, endX, endY);
-        config.setStartDelay(300);        // DOWN后延迟300ms
-        config.setEndDelay(200);          // UP前延迟200ms
-        config.setMinInterval(16);        // 最小间隔16ms
-        config.setMaxInterval(100);       // 最大间隔100ms
-        config.setParabolaHeightRatio(0.8f); // 抛物线高度比例
-        config.setTotalDuration(800);     // 总拖动时间800ms
 
-        simulateParabolicDrag(config);
-    }
 
     /**
      * 模拟抛物线拖动（核心方法）
@@ -61,7 +47,6 @@ public class ParabolicDragSimulator {
         // 3. 计算安全的抛物线轨迹
         ParabolicTrajectory trajectory = calculateSafeParabolicTrajectory(config);
         logDebug("抛物线信息:"+trajectory);
-
 
         // 4. 生成带加速减速的轨迹点（间隔16-100ms）
         List<DragPoint> movePoints = generateAccelDecelTrajectoryPoints(trajectory, config);
@@ -507,7 +492,7 @@ public class ParabolicDragSimulator {
     /**
      * 高级功能：带超时保护的拖动
      */
-    public void safeParabolicDragWithTimeout(DragConfig config) {
+    public void startParabolicDragWithTimeout(DragConfig config) {
         // 设置超时监控
         Thread timeoutThread = new Thread(() -> {
             try {
