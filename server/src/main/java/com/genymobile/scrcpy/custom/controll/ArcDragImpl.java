@@ -13,22 +13,20 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-public class ArcCircleDragImpl {
+public class ArcDragImpl {
     private final int screenWidth;
     private final int screenHeight;
     private final boolean debugMode;
     private long mDownTime;
     private int mDisplayId;
-    public static final String TAG = ScrcpyConfig.getLogGroup() + "ParabolicDrag";
+    public static final String TAG = ScrcpyConfig.getLogGroup() + "ArcDrag";
 
-    public ArcCircleDragImpl(int width, int height, boolean debug,int displayId) {
+    public ArcDragImpl(int width, int height, boolean debug, int displayId) {
         this.screenWidth = width;
         this.screenHeight = height;
         this.debugMode = debug;
         this.mDisplayId = displayId;
     }
-
-
 
     /**
      * 模拟抛物线拖动（核心方法）

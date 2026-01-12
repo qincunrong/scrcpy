@@ -11,7 +11,7 @@ import com.genymobile.scrcpy.util.Logger;
 import java.util.ArrayList;
 import java.util.List;
 
-public class ParabolicDragSimulator {
+public class ParabolicDragImpl {
     private final int screenWidth;
     private final int screenHeight;
     private final boolean debugMode;
@@ -19,7 +19,7 @@ public class ParabolicDragSimulator {
     private int mDisplayId;
     public static final String TAG = ScrcpyConfig.getLogGroup() + "ParabolicDrag";
 
-    public ParabolicDragSimulator(int width, int height, boolean debug,int displayId) {
+    public ParabolicDragImpl(int width, int height, boolean debug, int displayId) {
         this.screenWidth = width;
         this.screenHeight = height;
         this.debugMode = debug;
