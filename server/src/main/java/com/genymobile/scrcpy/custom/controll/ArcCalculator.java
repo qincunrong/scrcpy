@@ -139,6 +139,59 @@ public class ArcCalculator {
         
         return arcPoints;
     }
+    public static List<Point> calculateArcPointsBySets(Point start, Point end, double arcHeight, int numPoints,double[] processPoints) {
+        List<Point> arcPoints = new ArrayList<>();
+
+        // 1. 计算C点
+        Point pointC = calculatePointC(start, end, arcHeight);
+
+        // 2. 计算圆心
+        Point center = calculateCircleCenter(start, pointC, end);
+
+        // 3. 计算半径
+        double radius = distance(center, start);
+
+        // 4. 计算起始角度和结束角度
+        double startAngle = Math.atan2(start.y - center.y, start.x - center.x);
+        double endAngle = Math.atan2(end.y - center.y, end.x - center.x);
+
+        // 确保角度正确（考虑方向）
+        double angleC = Math.atan2(pointC.y - center.y, pointC.x - center.x);
+
+        // 调整角度，确保经过C点
+        if (startAngle > endAngle) {
+            if (angleC > endAngle && angleC < startAngle) {
+                // C点在中间，不需要调整
+            } else {
+                endAngle += 2 * Math.PI;
+                if (angleC < startAngle) {
+                    angleC += 2 * Math.PI;
+                }
+            }
+        } else {
+            if (angleC < startAngle || angleC > endAngle) {
+                // 需要调整
+                startAngle += 2 * Math.PI;
+                if (angleC < endAngle) {
+                    angleC += 2 * Math.PI;
+                }
+            }
+        }
+        arcPoints.add(new Point(start.x, start.y));
+        // 5. 生成圆弧上的点
+        for (int i = 1; i < numPoints; i++) {
+            double adjustedT=processPoints[i];//默认是匀速的
+            double angle = startAngle + (endAngle - startAngle) * adjustedT;
+            double x = center.x + radius * Math.cos(angle);
+            double y = center.y + radius * Math.sin(angle);
+            arcPoints.add(new Point(x, y));
+        }
+        double x = end.x ;
+        double y = end.y;
+        arcPoints.add(new Point(x, y));
+        return arcPoints;
+    }
+
     public static List<Point> calculateArcPointsAcceDec(Point start, Point end, double length0, int numPoints) {
         List<Point> arcPoints = new ArrayList<>();
 

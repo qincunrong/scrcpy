@@ -5,10 +5,12 @@ import android.view.InputDevice;
 import android.view.MotionEvent;
 
 import com.genymobile.scrcpy.custom.ScrcpyConfig;
+import com.genymobile.scrcpy.custom.drap.VariableSpacingGenerator;
 import com.genymobile.scrcpy.device.Device;
 import com.genymobile.scrcpy.util.Logger;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 public class ArcCircleDragImpl {
@@ -101,7 +103,16 @@ public class ArcCircleDragImpl {
 
         logDebug("生成 " + steps + " 个轨迹点，总时间: " + config.totalDuration + "ms");
 //        List<Point> pointList= ArcCalculator.calculateArcPoints(trajectory.start, trajectory.end, trajectory.arcHeight, steps);
-        List<Point> pointList= ArcCalculator.calculateArcPointsAcceDec(trajectory.start, trajectory.end, trajectory.arcHeight, steps);
+//        List<Point> pointList= ArcCalculator.calculateArcPointsAcceDec(trajectory.start, trajectory.end, trajectory.arcHeight, steps);
+
+        double[] processPoints = VariableSpacingGenerator.generateVariableSpacingSequence(
+                steps,      // 20个点
+                0.99,     // 加速度因子 (0-1)，越大中间越稀疏
+                true     // 对称模式
+        );
+        logDebug("进度配置: " + Arrays.toString(processPoints));
+        List<Point> pointList= ArcCalculator.calculateArcPointsBySets(trajectory.start, trajectory.end, trajectory.arcHeight, steps,processPoints);
+
         for (int i = 0; i < pointList.size(); i++) {
             DragPoint dragPoint = new DragPoint();
             Point pointItem = pointList.get(i);
@@ -147,23 +158,13 @@ public class ArcCircleDragImpl {
         // 至少3个点
         return Math.max(steps, 3);
     }
-
-    /**
-     * 先加速后减速的缓动函数
-     */
-    private float applyAccelDecelEasing(float t) {
-        // 使用sin函数实现平滑的加速和减速
-        return (float) (0.5f - Math.cos(t * Math.PI) / 2);
-    }
-
-
-
     /**
      * 发送 MOVE 事件序列
      */
     private void sendMoveEvents(List<DragPoint> points, long startTime, DragConfig config) {
         int pointCount = points.size();
         long lastEventTime = startTime;
+        int center = pointCount / 2;
 
         for (int i = 0; i < pointCount; i++) {
             DragPoint point = points.get(i);
@@ -171,6 +172,9 @@ public class ArcCircleDragImpl {
             // 计算这个点应该发生的时间
             long targetTime = startTime + (long)(config.totalDuration * point.progress);
 
+            if (i == center) {
+                logDebug("中心点==================================");
+            }
             // 确保最小间隔
             if (i > 0) {
                 long interval = targetTime - lastEventTime;
@@ -193,7 +197,7 @@ public class ArcCircleDragImpl {
             }
 
             // 发送 MOVE 事件
-            sendTouchEvent(MotionEvent.ACTION_MOVE, (int) point.x, (int) point.y, targetTime);
+            sendTouchEvent(MotionEvent.ACTION_MOVE, (float) point.x, (float) point.y, targetTime);
             lastEventTime = targetTime;
         }
     }
@@ -202,14 +206,21 @@ public class ArcCircleDragImpl {
      * 发送触摸事件（使用 scrcpy 的 Device 接口）
      */
     long mLastEventTime;
-    private void sendTouchEvent(int action, int x, int y, long timestamp) {
+    float lastX;
+    float lastY;
+    private void sendTouchEvent(int action, float x, float y, long timestamp) {
         try {
             if (debugMode) {
                 String actionName = getActionName(action);
-                logDebug(String.format("发送事件: %s (%d, %d) , time:%d, offsetDown:%d, offsetLast:%d",
-                        actionName, x,y, timestamp,(timestamp-mDownTime),timestamp-mLastEventTime));
+                float dx = (x - lastX);
+                float dy = (y - lastY);
+                double offsetDistance = Math.sqrt(dx * dx + dy * dy);
+                logDebug(String.format("发送事件: %s (%.2f, %.2f) , time:%d, offsetDown:%d, offsetLast:%d, offsetDistance:%.2f",
+                        actionName, x,y, timestamp,(timestamp-mDownTime),timestamp-mLastEventTime,offsetDistance));
             }
             mLastEventTime = timestamp;
+            lastY = y;
+            lastX = x;
             MotionEvent event = createMotionEvent(action, x, y, timestamp);
             Device.injectEvent(event, mDisplayId, Device.INJECT_MODE_ASYNC);
             event.recycle();
@@ -229,7 +240,7 @@ public class ArcCircleDragImpl {
     /**
      * 创建 MotionEvent（兼容 scrcpy 的方式）
      */
-    private MotionEvent createMotionEvent(int action, int x, int y, long timestamp) {
+    private MotionEvent createMotionEvent(int action, float x, float y, long timestamp) {
         long downTime = mDownTime;
         long eventTime = timestamp;
 
