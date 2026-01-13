@@ -9,9 +9,9 @@ public class PiecewiseSpacingGenerator {
             double[] densities) {    // 每个段的密度 (0-1，越大越密集)
         
         // 参数校验
-        if (breakPoints.length != densities.length) {
-            throw new IllegalArgumentException("断点数量和密度数量必须相同");
-        }
+//        if (breakPoints.length != densities.length) {
+//            throw new IllegalArgumentException("断点数量和密度数量必须相同");
+//        }
         
         // 添加起点和终点
         double[] allPoints = new double[breakPoints.length + 2];

@@ -5,6 +5,8 @@ import android.view.InputDevice;
 import android.view.MotionEvent;
 
 import com.genymobile.scrcpy.custom.ScrcpyConfig;
+import com.genymobile.scrcpy.custom.drap.ArcCalculator;
+import com.genymobile.scrcpy.custom.drap.ArcParams;
 import com.genymobile.scrcpy.custom.drap.VariableSpacingGenerator;
 import com.genymobile.scrcpy.device.Device;
 import com.genymobile.scrcpy.util.Logger;
@@ -14,42 +16,31 @@ import java.util.Arrays;
 import java.util.List;
 
 public class ArcDragImpl {
-    private final int screenWidth;
-    private final int screenHeight;
+    public static final String TAG = ScrcpyConfig.getLogGroup() + "ArcDrag";
     private final boolean debugMode;
     private long mDownTime;
     private int mDisplayId;
-    public static final String TAG = ScrcpyConfig.getLogGroup() + "ArcDrag";
 
-    public ArcDragImpl(int width, int height, boolean debug, int displayId) {
-        this.screenWidth = width;
-        this.screenHeight = height;
+    public ArcDragImpl(boolean debug, int displayId) {
         this.debugMode = debug;
         this.mDisplayId = displayId;
     }
 
-    /**
-     * 模拟抛物线拖动（核心方法）
-     */
-    private void simulateArcDrag(DragConfig config) {
+
+    public void startArcDrag(DragConfig config) {
         long overallStartTime = SystemClock.uptimeMillis();
         mDownTime = overallStartTime;
         // 1. ACTION_DOWN
         sendTouchEvent(MotionEvent.ACTION_DOWN, config.startX, config.startY, overallStartTime);
-        logDebug("ACTION_DOWN at (" + config.startX + "," + config.startY + ")");
-
         // 2. 开始延迟 300ms
         if (config.startDelay > 0) {
             logDebug("开始延迟:"+config.startDelay);
             sleep(config.startDelay);
         }
+        ArcParams arcParams = calculateArcParams(config);
+        logDebug("圆弧信息:"+arcParams);
 
-        // 3. 计算安全的抛物线轨迹
-        ArcTrajectory trajectory = calculateArcTrajectory(config);
-        logDebug("圆弧信息:"+trajectory);
-
-        List<DragPoint> movePoints = generateAccelDecelPoints(trajectory, config);
-
+        List<DragPoint> movePoints = calculateAccelDecelPoints(config,arcParams);
         // 5. 发送 MOVE 事件
         long moveStartTime = overallStartTime + config.startDelay;
         sendMoveEvents(movePoints, moveStartTime, config);
@@ -65,70 +56,66 @@ public class ArcDragImpl {
         // 7. ACTION_UP
         long upTime = overallStartTime + config.startDelay + config.totalDuration + config.endDelay;
         sendTouchEvent(MotionEvent.ACTION_UP, config.endX, config.endY, upTime);
-        logDebug("ACTION_UP at (" + config.endX + "," + config.endY + ")");
     }
 
     /**
      * 计算安全的抛物线轨迹（确保不超出屏幕）
      */
-    private ArcTrajectory calculateArcTrajectory(DragConfig config) {
-        ArcTrajectory trajectory = new ArcTrajectory();
-        trajectory.start = new Point(config.startX, config.startY);
-        trajectory.end = new Point(config.endX, config.endY);
+    private ArcParams calculateArcParams(DragConfig config) {
+        ArcParams arcParams = new ArcParams();
+        arcParams.start = new Point(config.startX, config.startY);
+        arcParams.end = new Point(config.endX, config.endY);
 
         // 计算距离
         double distance = Math.sqrt(
                 Math.pow(config.endX - config.startX, 2) +
                         Math.pow(config.endY - config.startY, 2)
         );
-        double arcHeight = distance * config.parabolaHeightRatio;
-        Point pointerC = ArcCalculator.calculatePointC(trajectory.start, trajectory.end, arcHeight);
-        trajectory.control = pointerC;
-        trajectory.arcHeight = (int) arcHeight;
-        return trajectory;
+        double arcHeight = distance * config.arcHeightRatio;
+        arcParams.arcHeight = (int) arcHeight;
+
+        Point pointerC = ArcCalculator.calculatePointC(arcParams,true);
+        if (!isInScreen(config,pointerC)) {
+            //换一个弧度的方向
+            pointerC = ArcCalculator.calculatePointC(arcParams, false);
+        }
+        arcParams.control = pointerC;
+        return arcParams;
     }
 
-
+    private boolean isInScreen(DragConfig config,Point point) {
+        double justX = clamp(point.x, 10, config.screenWidth - 10);
+        double justY = clamp(point.y, 10, config.screenHeight - 10);
+        if (justX == point.x || justY == point.y) {
+            return true;
+        }
+        return false;
+    }
 
     /**
-     * 生成先加速后减速的轨迹点（间隔16-100ms）
+     * 生成先加速后减速的轨迹点
      */
-    private List<DragPoint> generateAccelDecelPoints(
-            ArcTrajectory trajectory, DragConfig config) {
+    private List<DragPoint> calculateAccelDecelPoints(DragConfig config, ArcParams arcParams) {
         List<DragPoint> points = new ArrayList<>();
 
-        int steps = calculateOptimalSteps(config.totalDuration, config.minInterval, config.maxInterval);
+        int steps = calculateSteps(config.totalDuration, config.minInterval, config.maxInterval);
 
         logDebug("生成 " + steps + " 个轨迹点，总时间: " + config.totalDuration + "ms");
 //        List<Point> pointList= ArcCalculator.calculateArcPoints(trajectory.start, trajectory.end, trajectory.arcHeight, steps);
 //        List<Point> pointList= ArcCalculator.calculateArcPointsAcceDec(trajectory.start, trajectory.end, trajectory.arcHeight, steps);
 
-        double[] processPoints = VariableSpacingGenerator.generateVariableSpacingSequence(
-                steps,      // 20个点
-                0.99,     // 加速度因子 (0-1)，越大中间越稀疏
-                true     // 对称模式
-        );
+        double[] processPoints = calculateAcceDesProgress(steps);
         logDebug("进度配置: " + Arrays.toString(processPoints));
-        List<Point> pointList= ArcCalculator.calculateArcPointsBySets(trajectory.start, trajectory.end, trajectory.arcHeight, steps,processPoints);
+        List<Point> pointList= ArcCalculator.calculateArcPointsBySet(arcParams, steps,processPoints);
 
         for (int i = 0; i < pointList.size(); i++) {
             DragPoint dragPoint = new DragPoint();
             Point pointItem = pointList.get(i);
-
             // 进度（0到1）
             float progress = (float) i / steps;
-
-            // 应用先加速后减速的时间曲线
-//            float easedProgress = applyAccelDecelEasing(progress);
-//            float easedProgress = progress;
-
-            // 计算抛物线上的点
-//            Point position = calculateBezierPoint(easedProgress,
-//                    trajectory.start, trajectory.control, trajectory.end);
-
             // 确保在屏幕内
-            double x = clamp(pointItem.x, 0, screenWidth - 1);
-            double y = clamp(pointItem.y, 0, screenHeight - 1);
+            double x = clamp(pointItem.x, 0, config.screenWidth - 1);
+            double y = clamp(pointItem.y, 0, config.screenHeight - 1);
 
             dragPoint.x = x;
             dragPoint.y = y;
@@ -139,17 +126,44 @@ public class ArcDragImpl {
         return points;
     }
 
+    private double[] calculateAcceDesProgress(int steps) {
+        double[] processPoints = VariableSpacingGenerator.generateVariableSpacingSequence(
+                steps,      // 20个点
+                0.99,     // 加速度因子 (0-1)，越大中间越稀疏
+                true     // 对称模式 该配置可用
+        );
+
+
+//        double[] processPoints = BezierSpacingGenerator.generateAutoBezierSequence(steps, 0.7);
+//        double[] processPoints = PhysicsBasedGenerator.generateSpringSequence(
+//                steps, 1.5, 0.2);
+//        double[] processPoints = PiecewiseSpacingGenerator.generatePiecewiseSequence(
+//                steps,
+//                new double[]{0.2, 0.5},        // 断点位置
+//                new double[]{0.9, 0.1, 0.9}    // 三个段的密度（高-低-高）
+//        );
+
+//        double[] processPoints =VariableSpacingGenerator.generateAdvancedSequence(
+//                steps, 0.9, 0.1, 0.9);
+
+//        double[] processPoints =VariableSpacingGenerator.generateSinusoidalSequence(
+//                steps, 0.99);
+
+//        double[] processPoints =MostExtremeGenerator.generateMostExtremeSequence(steps, 0.6, 8);
+
+
+        return processPoints;
+    }
+
     /**
      * 计算最优步数（确保间隔在16-100ms之间）
      */
-    private int calculateOptimalSteps(int totalDuration, int minInterval, int maxInterval) {
+    private int calculateSteps(int totalDuration, int minInterval, int maxInterval) {
         // 理论步数
         int theoreticalSteps = totalDuration / ((minInterval + maxInterval) / 2);
-
         // 确保步数在合理范围内
         int minSteps = (int) Math.ceil((float) totalDuration / maxInterval);
         int maxSteps = (int) Math.floor((float) totalDuration / minInterval);
-
 
         int steps = Math.min(Math.max(theoreticalSteps, minSteps), maxSteps);
 
@@ -313,13 +327,16 @@ public class ArcDragImpl {
     // ==================== 内部类 ====================
 
     public static class DragConfig {
+
+        int screenWidth;
+        int screenHeight;
         int startX, startY;
         int endX, endY;
         int startDelay = 300;       // DOWN后延迟
         int endDelay = 200;         // UP前延迟
         int minInterval = 16;       // 最小间隔
         int maxInterval = 100;      // 最大间隔
-        float parabolaHeightRatio = 0.2f; // 抛物线高度比例
+        float arcHeightRatio = 0.2f; // 抛物线高度比例
         int totalDuration = 800;    // 总拖动时间
 
         public DragConfig(int startX, int startY, int endX, int endY) {
@@ -333,26 +350,27 @@ public class ArcDragImpl {
         public void setEndDelay(int delay) { this.endDelay = delay; }
         public void setMinInterval(int interval) { this.minInterval = interval; }
         public  void setMaxInterval(int interval) { this.maxInterval = interval; }
-        public void setParabolaHeightRatio(float ratio) { this.parabolaHeightRatio = ratio; }
+        public void setArcHeightRatio(float ratio) { this.arcHeightRatio = ratio; }
         public void setTotalDuration(int duration) { this.totalDuration = duration; }
-    }
 
-    private static class ArcTrajectory {
-        Point start;
-        Point end;
-        Point control;
-        int arcHeight;
+        public int getScreenWidth() {
+            return screenWidth;
+        }
 
-        @Override
-        public String toString() {
-            return "{" +
-                    "start=" + start +
-                    ", end=" + end +
-                    ", control=" + control +
-                    ", arcHeight=" + arcHeight +
-                    '}';
+        public void setScreenWidth(int screenWidth) {
+            this.screenWidth = screenWidth;
+        }
+
+        public int getScreenHeight() {
+            return screenHeight;
+        }
+
+        public void setScreenHeight(int screenHeight) {
+            this.screenHeight = screenHeight;
         }
     }
+
+
 
     private static class DragPoint {
         double x;
@@ -364,11 +382,5 @@ public class ArcDragImpl {
     /**
      * 高级功能：带超时保护的拖动
      */
-    public void startArcDrag(DragConfig config) {
-        try {
-            // 执行拖动
-            simulateArcDrag(config);
-        } finally {
-        }
-    }
+
 }

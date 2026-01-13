@@ -1,4 +1,6 @@
-package com.genymobile.scrcpy.custom.controll;
+package com.genymobile.scrcpy.custom.drap;
+
+import com.genymobile.scrcpy.custom.controll.Point;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -9,9 +11,14 @@ public class ArcCalculator {
     private static double distance(Point p1, Point p2) {
         return Math.sqrt(Math.pow(p2.x - p1.x, 2) + Math.pow(p2.y - p1.y, 2));
     }
-    
+
+    public static Point calculatePointC(ArcParams params,boolean isArcCenterTop) {
+        Point pointC = calculatePointC(params.start, params.end, params.arcHeight, true);
+        return pointC;
+
+    }
     // 计算C点坐标
-    public static Point calculatePointC(Point start, Point end, double length0) {
+    public static Point calculatePointC(Point start, Point end, double arcHeight,boolean isArcCenterTop) {
         // 计算中点
         double midX = (start.x + end.x) / 2.0;
         double midY = (start.y + end.y) / 2.0;
@@ -30,15 +37,23 @@ public class ArcCalculator {
         // 法向量（垂直方向）- 选择左侧的法向量
         // 顺时针旋转90度得到指向左侧的法向量
         double nx = uy;   // 旋转矩阵: [0, -1; 1, 0] * [ux, uy]^T = [-uy, ux]
-        double ny = -ux;  // 但我们需要左侧，所以取反
-        if (ux < 0) {
-            ny = ux;
+        double ny;
+        if (isArcCenterTop) {
+            ny = -ux;  // 但我们需要左侧，所以取反
+            if (ux < 0) {
+                ny = ux;
+            }
+        }else {
+            ny = ux;  // 但我们需要左侧，所以取反
+            if (ux < 0) {
+                ny = -ux;
+            }
         }
 
         // 3. 计算圆心 - 确保圆心在中点左侧
         // 圆心的 x 坐标应该小于中点的 x 坐标
-        double cX = midX + length0 * nx;
-        double cY = midY + length0 * ny;
+        double cX = midX + arcHeight * nx;
+        double cY = midY + arcHeight * ny;
         
 //        // 计算直线的长度
 //        double lineLength = distance(start, end);
@@ -87,11 +102,14 @@ public class ArcCalculator {
     }
     
     // 计算圆弧上的点
-    public static List<Point> calculateArcPoints(Point start, Point end, double length0, int numPoints) {
+    public static List<Point> calculateArcPointsByEven(ArcParams arcParams, int numPoints) {
         List<Point> arcPoints = new ArrayList<>();
-        
+
+        Point pointC = arcParams.control;
+        Point start = arcParams.start;
+        Point end = arcParams.end;
         // 1. 计算C点
-        Point pointC = calculatePointC(start, end, length0);
+//        Point pointC = calculatePointC(start, end, arcHeight);
         
         // 2. 计算圆心
         Point center = calculateCircleCenter(start, pointC, end);
@@ -139,14 +157,17 @@ public class ArcCalculator {
         
         return arcPoints;
     }
-    public static List<Point> calculateArcPointsBySets(Point start, Point end, double arcHeight, int numPoints,double[] processPoints) {
+    public static List<Point> calculateArcPointsBySet(ArcParams arcParams, int pointNum, double[] processPoints) {
         List<Point> arcPoints = new ArrayList<>();
 
         // 1. 计算C点
-        Point pointC = calculatePointC(start, end, arcHeight);
+//        Point pointC = calculatePointC(start, end, arcHeight, true);
+        Point pointC = arcParams.control;
+        Point start = arcParams.start;
+        Point end = arcParams.end;
 
         // 2. 计算圆心
-        Point center = calculateCircleCenter(start, pointC, end);
+        Point center = calculateCircleCenter(start, pointC, arcParams.end);
 
         // 3. 计算半径
         double radius = distance(center, start);
@@ -178,26 +199,27 @@ public class ArcCalculator {
             }
         }
         arcPoints.add(new Point(start.x, start.y));
+        int justNumPoints = Math.min(pointNum, processPoints==null?0:processPoints.length);
         // 5. 生成圆弧上的点
-        for (int i = 1; i < numPoints; i++) {
+        for (int i = 1; i < justNumPoints; i++) {
             double adjustedT=processPoints[i];//默认是匀速的
             double angle = startAngle + (endAngle - startAngle) * adjustedT;
             double x = center.x + radius * Math.cos(angle);
             double y = center.y + radius * Math.sin(angle);
             arcPoints.add(new Point(x, y));
         }
-        double x = end.x ;
-        double y = end.y;
-        arcPoints.add(new Point(x, y));
+
+        arcPoints.add(new Point(end.x, end.y));
         return arcPoints;
     }
 
-    public static List<Point> calculateArcPointsAcceDec(Point start, Point end, double length0, int numPoints) {
+    public static List<Point> calculateArcPointsAcceDec(ArcParams arcParams, int numPoints) {
+
+        Point pointC = arcParams.control;
+        Point start = arcParams.start;
+        Point end = arcParams.end;
+
         List<Point> arcPoints = new ArrayList<>();
-
-        // 1. 计算C点
-        Point pointC = calculatePointC(start, end, length0);
-
         // 2. 计算圆心
         Point center = calculateCircleCenter(start, pointC, end);
 
