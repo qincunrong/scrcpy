@@ -20,6 +20,7 @@ public class ScreenShotImpl {
     private Handler mHandler;
     private VirtualDisplay mVirtualDisplay;
     private ImageReader mImageReader;
+    private OnEventListener mListener;
 
     public ScreenShotImpl() {}
 
@@ -60,8 +61,12 @@ public class ScreenShotImpl {
                             Logger.i(TAG, "uploadImage result:%b", isUploadSuccess);
                             if (isUploadSuccess) {
                                 deleteFile(imageFile);
+                                onFinalSuccess();
+
+                            }else {
+                                onFinalError(-1, "uploadImage failed");
                             }
-                            releaseScreenShot();
+
                         }else {
                             Logger.i(TAG, "onImageAvailable, image is null");
                         }
@@ -76,6 +81,20 @@ public class ScreenShotImpl {
             Logger.i(TAG, "startScreenshot, exception:"+e.getMessage());
             e.printStackTrace();
         }
+    }
+
+    private void onFinalError(int code, String msg) {
+        if (mListener != null) {
+            mListener.onUploadFailed(code, msg);
+        }
+        releaseScreenShot();
+    }
+
+    private void onFinalSuccess() {
+        if (mListener != null) {
+            mListener.onUploadSuccess();
+        }
+        releaseScreenShot();
     }
 
     private void releaseScreenShot() {
@@ -108,6 +127,11 @@ public class ScreenShotImpl {
 
     }
 
+
+    public void setListener(OnEventListener mListener) {
+        this.mListener = mListener;
+    }
+
     private boolean uploadImage(String imageFile) {
         //TODO:上传图片
         return false;
@@ -119,4 +143,9 @@ public class ScreenShotImpl {
     }
 
 
+    public interface OnEventListener{
+        void onUploadSuccess();
+
+        void onUploadFailed(int code, String msg);
+    }
 }

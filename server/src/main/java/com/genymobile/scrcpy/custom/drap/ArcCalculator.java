@@ -13,7 +13,7 @@ public class ArcCalculator {
     }
 
     public static Point calculatePointC(ArcParams params,boolean isArcCenterTop) {
-        Point pointC = calculatePointC(params.start, params.end, params.arcHeight, true);
+        Point pointC = calculatePointC(params.start, params.end, params.arcHeight, isArcCenterTop);
         return pointC;
 
     }

@@ -45,13 +45,15 @@ public class VariableSpacingGenerator {
         if (t <= 0.5) {
             // 前半段：加速，变化越来越快
             double normalized = t * 2; // 映射到0-1
-            return 0.5 * Math.pow(normalized, 0.5 + factor * 1.5);
+            return 0.5 * Math.pow(normalized, 0.5 + factor * 2.5);
         } else {
             // 后半段：减速，变化越来越慢
             double normalized = (t - 0.5) * 2; // 映射到0-1
-            return 0.5 + 0.5 * (1 - Math.pow(1 - normalized, 0.5 + factor * 1.5));
+            return 0.5 + 0.5 * (1 - Math.pow(1 - normalized, 0.5 + factor * 2.5));
         }
     }
+
+
     
     // 不对称加速减速（最稀疏点位置可调）
     private static double asymmetricAcceleration(double t, double factor) {

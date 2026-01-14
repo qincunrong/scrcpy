@@ -75,18 +75,21 @@ public class ArcDragImpl {
         arcParams.arcHeight = (int) arcHeight;
 
         Point pointerC = ArcCalculator.calculatePointC(arcParams,true);
+        Logger.i(TAG,"arcCenterPointer:[%.2f,%.2f], isArcCenterTop:true",pointerC.x,pointerC.y);
         if (!isInScreen(config,pointerC)) {
             //换一个弧度的方向
             pointerC = ArcCalculator.calculatePointC(arcParams, false);
+            Logger.i(TAG,"arcCenterPointer:[%.2f,%.2f], isArcCenterTop:false",pointerC.x,pointerC.y);
         }
         arcParams.control = pointerC;
         return arcParams;
     }
 
     private boolean isInScreen(DragConfig config,Point point) {
-        double justX = clamp(point.x, 10, config.screenWidth - 10);
-        double justY = clamp(point.y, 10, config.screenHeight - 10);
-        if (justX == point.x || justY == point.y) {
+        if (point.x > 0
+                && point.x < config.screenWidth
+                && point.y > 0
+                && point.y < config.screenHeight) {
             return true;
         }
         return false;
@@ -156,7 +159,7 @@ public class ArcDragImpl {
     }
 
     /**
-     * 计算最优步数（确保间隔在16-100ms之间）
+     * 计算最优步数（确保两点间隔在16-100ms之间）
      */
     private int calculateSteps(int totalDuration, int minInterval, int maxInterval) {
         // 理论步数
