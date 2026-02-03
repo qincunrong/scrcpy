@@ -1,7 +1,11 @@
 package com.genymobile.scrcpy.control;
 
+import android.view.MotionEvent;
+
+import com.genymobile.scrcpy.custom.ScrcpyConfig;
 import com.genymobile.scrcpy.device.Position;
 import com.genymobile.scrcpy.util.Binary;
+import com.genymobile.scrcpy.util.Logger;
 
 import java.io.BufferedInputStream;
 import java.io.DataInputStream;
@@ -11,6 +15,7 @@ import java.nio.charset.StandardCharsets;
 
 public class ControlMessageReader {
 
+    public static final String TAG = ScrcpyConfig.getLogGroup() + "ControlMessageReader";
     private static final int MESSAGE_MAX_SIZE = 1 << 18; // 256k
 
     public static final int CLIPBOARD_TEXT_MAX_LENGTH = MESSAGE_MAX_SIZE - 14; // type: 1 byte; sequence: 8 bytes; paste flag: 1 byte; length: 4 bytes
@@ -25,37 +30,55 @@ public class ControlMessageReader {
     public ControlMessage read() throws IOException {
         int type = dis.readUnsignedByte();
         switch (type) {
-            case ControlMessage.TYPE_INJECT_KEYCODE:
-                return parseInjectKeycode();
-            case ControlMessage.TYPE_INJECT_TEXT:
-                return parseInjectText();
+//            case ControlMessage.TYPE_INJECT_KEYCODE:
+//                return parseInjectKeycode();
+//            case ControlMessage.TYPE_INJECT_TEXT:
+//                return parseInjectText();
             case ControlMessage.TYPE_INJECT_TOUCH_EVENT:
-                return parseInjectTouchEvent();
-            case ControlMessage.TYPE_INJECT_SCROLL_EVENT:
-                return parseInjectScrollEvent();
-            case ControlMessage.TYPE_BACK_OR_SCREEN_ON:
-                return parseBackOrScreenOnEvent();
-            case ControlMessage.TYPE_GET_CLIPBOARD:
-                return parseGetClipboard();
-            case ControlMessage.TYPE_SET_CLIPBOARD:
-                return parseSetClipboard();
-            case ControlMessage.TYPE_SET_DISPLAY_POWER:
-                return parseSetDisplayPower();
-            case ControlMessage.TYPE_EXPAND_NOTIFICATION_PANEL:
-            case ControlMessage.TYPE_EXPAND_SETTINGS_PANEL:
-            case ControlMessage.TYPE_COLLAPSE_PANELS:
-            case ControlMessage.TYPE_ROTATE_DEVICE:
-            case ControlMessage.TYPE_OPEN_HARD_KEYBOARD_SETTINGS:
-            case ControlMessage.TYPE_RESET_VIDEO:
-                return ControlMessage.createEmpty(type);
-            case ControlMessage.TYPE_UHID_CREATE:
-                return parseUhidCreate();
-            case ControlMessage.TYPE_UHID_INPUT:
-                return parseUhidInput();
-            case ControlMessage.TYPE_UHID_DESTROY:
-                return parseUhidDestroy();
-            case ControlMessage.TYPE_START_APP:
-                return parseStartApp();
+                return parseInjectTouchEventTest();
+//            case ControlMessage.TYPE_INJECT_SCROLL_EVENT:
+//                return parseInjectScrollEvent();
+//            case ControlMessage.TYPE_BACK_OR_SCREEN_ON:
+//                return parseBackOrScreenOnEvent();
+//            case ControlMessage.TYPE_GET_CLIPBOARD:
+//                return parseGetClipboard();
+//            case ControlMessage.TYPE_SET_CLIPBOARD:
+//                return parseSetClipboard();
+//            case ControlMessage.TYPE_SET_DISPLAY_POWER:
+//                return parseSetDisplayPower();
+//            case ControlMessage.TYPE_EXPAND_NOTIFICATION_PANEL:
+//            case ControlMessage.TYPE_EXPAND_SETTINGS_PANEL:
+//            case ControlMessage.TYPE_COLLAPSE_PANELS:
+//            case ControlMessage.TYPE_ROTATE_DEVICE:
+//            case ControlMessage.TYPE_OPEN_HARD_KEYBOARD_SETTINGS:
+//            case ControlMessage.TYPE_RESET_VIDEO:
+//                return ControlMessage.createEmpty(type);
+//            case ControlMessage.TYPE_UHID_CREATE:
+//                return parseUhidCreate();
+//            case ControlMessage.TYPE_UHID_INPUT:
+//                return parseUhidInput();
+//            case ControlMessage.TYPE_UHID_DESTROY:
+//                return parseUhidDestroy();
+//            case ControlMessage.TYPE_START_APP:
+//                return parseStartApp();
+//            //add by qcr
+            case ControlMessage.TYPE_MOCK_CLICK:
+                return parseInjectMockClickEvent();
+
+            case ControlMessage.TYPE_MOCK_DOUBLE_CLICK:
+                return parseInjectMockDoubleClickEvent();
+
+            case ControlMessage.TYPE_MOCK_DRAG:
+                return parseInjectMockDragEvent();
+
+            case ControlMessage.TYPE_SCREEN_SHOT:
+                return parseInjectScreenShot();
+
+            case ControlMessage.TYPE_SCREEN_SHOT_UPLOAD_RESULT:
+                return parseInjectScreenShotResult();
+
+            case ControlMessage.TYPE_SLEEP:
+                return parseInjectMockSleep();
             default:
                 throw new ControlProtocolException("Unknown event type: " + type);
         }
@@ -100,6 +123,7 @@ public class ControlMessageReader {
         return ControlMessage.createInjectText(text);
     }
 
+    private Position mStartPosition;
     private ControlMessage parseInjectTouchEvent() throws IOException {
         int action = dis.readUnsignedByte();
         long pointerId = dis.readLong();
@@ -107,7 +131,57 @@ public class ControlMessageReader {
         float pressure = Binary.u16FixedPointToFloat(dis.readShort());
         int actionButton = dis.readInt();
         int buttons = dis.readInt();
-        return ControlMessage.createInjectTouchEvent(action, pointerId, position, pressure, actionButton, buttons);
+        ControlMessage msg = ControlMessage.createInjectTouchEvent(action, pointerId, position, pressure, actionButton, buttons);
+        Logger.i(TAG,"收到触摸事件: action=%d, position:%s" , action ,position);
+        return msg;
+    }
+
+    private ControlMessage parseInjectTouchEventTest() throws IOException {
+        int action = dis.readUnsignedByte();
+        long pointerId = dis.readLong();
+        Position position = parsePosition();
+        float pressure = Binary.u16FixedPointToFloat(dis.readShort());
+        int actionButton = dis.readInt();
+        int buttons = dis.readInt();
+//        return ControlMessage.createInjectTouchEvent(action, pointerId, position, pressure, actionButton, buttons);
+        //TODO:删除测试代码
+        if (action != MotionEvent.ACTION_DOWN) {
+            return null;
+        }
+        Logger.i(TAG,"收到触摸事件: action=" + action +
+                ", x=" + position.getPoint().getX() + ", y=" + position.getPoint().getY() +
+                ", pressure=" + pressure);
+        //将点击时间模拟成拖动事件
+
+//        return ControlMessage.createScreenShotEvent();
+//        return ControlMessage.createMockClickEvent(position);
+
+//        Position endPosition=new Position(startPosition.getPoint().getX()+100, startPosition.getPoint().getY()+100, startPosition.getScreenSize().getWidth(), startPosition.getScreenSize().getHeight());
+        if (mStartPosition == null) {
+            mStartPosition = position;
+            Logger.i(TAG,"设置拖动开始位置: action=" + action +
+                    ", x=" + position.getPoint().getX() + ", y=" + position.getPoint().getY() +
+                    ", pressure=" + pressure);
+        }else {
+            Position endPosition = position;
+            Logger.i(TAG,"设置拖动结束位置: action=" + action +
+                    ", x=" + position.getPoint().getX() + ", y=" + position.getPoint().getY() +
+                    ", pressure=" + pressure);
+//            int duration = calculateDragTime(mStartPosition.getPoint().getX(), mStartPosition.getPoint().getY(), position.getPoint().getX(), position.getPoint().getY());
+            int duration = 4000;
+            ControlMessage msg = ControlMessage.createMockDragEvent(mStartPosition, endPosition, duration);
+            mStartPosition = null;
+            return msg;
+        }
+        return null;
+    }
+
+    public static int calculateDragTime(int startX, int startY, int endX, int endY) {
+        // 计算欧几里得距离
+        double distance = Math.sqrt(Math.pow(endX - startX, 2) + Math.pow(endY - startY, 2));
+        // 基础时间 + 距离相关时间
+        // 假设：每100像素增加50毫秒，最小200毫秒
+        return (int) Math.max(200, 200 + (distance / 100) * 50);
     }
 
     private ControlMessage parseInjectScrollEvent() throws IOException {
@@ -173,4 +247,39 @@ public class ControlMessageReader {
         int screenHeight = dis.readUnsignedShort();
         return new Position(x, y, screenWidth, screenHeight);
     }
+
+
+    //add by qcr
+    private ControlMessage parseInjectMockClickEvent() throws IOException {
+        Position position = parsePosition();
+        return ControlMessage.createMockClickEvent(position);
+    }
+
+    private ControlMessage parseInjectMockDoubleClickEvent() throws IOException {
+        Position position = parsePosition();
+        return ControlMessage.createMockDoubleClickEvent(position);
+    }
+
+    private ControlMessage parseInjectMockDragEvent() throws IOException {
+        Position startPosition = parsePosition();
+        Position endPosition = parsePosition();
+        int duration = dis.readUnsignedShort();
+        return ControlMessage.createMockDragEvent(startPosition,endPosition,duration);
+    }
+
+    private ControlMessage parseInjectMockSleep() throws IOException {
+        int duration = dis.readInt();
+        return ControlMessage.createSleepEvent(duration);
+    }
+
+    private ControlMessage parseInjectScreenShot() throws IOException {
+        int duration = dis.readInt();
+        return ControlMessage.createScreenShotEvent(duration);
+    }
+    private ControlMessage parseInjectScreenShotResult() throws IOException {
+        int id = dis.readInt();
+        int result=dis.readInt();
+        return ControlMessage.createScreenShotEventResult(id);
+    }
+
 }

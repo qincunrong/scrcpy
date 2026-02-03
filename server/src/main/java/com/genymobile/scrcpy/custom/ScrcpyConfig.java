@@ -12,4 +12,8 @@ public class ScrcpyConfig {
     public static String getLogGroup() {
         return "SCR-";
     }
+
+    public static String getLogDir() {
+        return "/data/local/tmp/scrcpy/log";
+    }
 }

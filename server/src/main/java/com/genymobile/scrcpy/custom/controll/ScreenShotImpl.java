@@ -21,6 +21,7 @@ public class ScreenShotImpl {
     private VirtualDisplay mVirtualDisplay;
     private ImageReader mImageReader;
     private OnEventListener mListener;
+    private boolean mIsReleased = false;
 
     public ScreenShotImpl() {}
 
@@ -91,6 +92,10 @@ public class ScreenShotImpl {
     }
 
     private void onFinalSuccess() {
+        if (mIsReleased) {
+            return;
+        }
+        mIsReleased = true;
         if (mListener != null) {
             mListener.onUploadSuccess();
         }

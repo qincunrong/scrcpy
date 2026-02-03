@@ -30,10 +30,11 @@ public final class ControlMessage {
 
     //add by qcr
     public static final int TYPE_MOCK_CLICK = 18; //模拟点击
-    public static final int TYPE_MOCK_DOUBLE_CLICK = 20;//模拟双击
-    public static final int TYPE_MOCK_DRAG = 19;//模拟拖动
+    public static final int TYPE_MOCK_DOUBLE_CLICK = 19;//模拟双击
+    public static final int TYPE_MOCK_DRAG = 20;//模拟拖动
     public static final int TYPE_SCREEN_SHOT=21;//截屏
-    public static final int TYPE_SLEEP=22;//睡眠时间
+    public static final int TYPE_SCREEN_SHOT_UPLOAD_RESULT=22;//截屏上传结果反馈
+    public static final int TYPE_SLEEP=23;//睡眠时间
     //end add
 
     public static final long SEQUENCE_INVALID = 0;
@@ -211,9 +212,16 @@ public final class ControlMessage {
         return msg;
     }
 
-    public static ControlMessage createScreenShotEvent() {
+    public static ControlMessage createScreenShotEvent(int id) {
         ControlMessage msg = new ControlMessage();
         msg.type = TYPE_SCREEN_SHOT;
+        msg.id = id;
+        return msg;
+    }
+    public static ControlMessage createScreenShotEventResult(int id) {
+        ControlMessage msg = new ControlMessage();
+        msg.type = TYPE_SCREEN_SHOT_UPLOAD_RESULT;
+        msg.id = id;
         return msg;
     }
 

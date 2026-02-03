@@ -2,6 +2,10 @@ package com.genymobile.scrcpy.util;
 
 import android.util.Log;
 
+import java.io.PrintWriter;
+import java.io.StringWriter;
+import java.io.Writer;
+
 
 public class Logger {
 
@@ -95,5 +99,29 @@ public class Logger {
         }
 
     }
-
+    public static String printThrowable(String tag, Throwable ex) {
+        return printThrowable(tag, "", ex);
+    }
+    public static String printThrowable(String tag, String msg,Throwable ex) {
+        try {
+            StringBuffer sb = new StringBuffer();
+            sb.append("exception:"+msg);
+            sb.append(", msg:" + ex.getMessage());
+            sb.append(", stack==" + ex.getMessage());
+            Writer writer = new StringWriter();
+            PrintWriter printWriter = new PrintWriter(writer);
+            ex.printStackTrace(printWriter);
+            Throwable cause = ex.getCause();
+            while (cause != null) {
+                cause.printStackTrace(printWriter);
+                cause = cause.getCause();
+            }
+            printWriter.close();
+            String result = writer.toString();
+            sb.append(result);
+            Logger.i(tag,sb.toString());
+        } catch (Exception e) {
+        }
+        return null;
+    }
 }
