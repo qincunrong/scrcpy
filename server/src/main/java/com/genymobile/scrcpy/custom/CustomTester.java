@@ -6,9 +6,9 @@ import android.graphics.Rect;
 import android.os.Handler;
 import android.util.Log;
 
-import com.genymobile.scrcpy.custom.bitmap.BitmapHelper;
+//import com.genymobile.scrcpy.custom.bitmap.BitmapHelper;
 import com.genymobile.scrcpy.custom.ocr.AssetsExtractor;
-import com.genymobile.scrcpy.custom.ocr.OptimizedOcrManager;
+//import com.genymobile.scrcpy.custom.ocr.OptimizedOcrManager;
 import com.genymobile.scrcpy.custom.ocr.SoExtracterAndLoader;
 
 import java.io.File;
@@ -21,7 +21,7 @@ public class CustomTester {
      * 1，so文件拷贝到sd卡上并加载so文件
      * 2，assets文件夹下的离线语言识别包拷贝到sd卡上
      */
-    public static void test() {
+  /*  public static void test() {
         try {
             Log.i(TAG, "loadTessLibraries  start" );
             SoExtracterAndLoader.loadTessLibraries(ScrcpyConfig.getBaseDir());
@@ -88,5 +88,5 @@ public class CustomTester {
                 Log.i(TAG, "recognizeAsync onProgress:" + progress);
             }
         });
-    }
+    }*/
 }
