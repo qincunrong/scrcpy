@@ -35,6 +35,7 @@ public final class ControlMessage {
     public static final int TYPE_SCREEN_SHOT=21;//截屏
     public static final int TYPE_SCREEN_SHOT_UPLOAD_RESULT=22;//截屏上传结果反馈
     public static final int TYPE_SLEEP=23;//睡眠时间
+    public static final int TYPE_UPLOAD_LOG=24;//上传日志文件
     //end add
 
     public static final long SEQUENCE_INVALID = 0;
@@ -69,6 +70,7 @@ public final class ControlMessage {
     private int duration;
     private Position dragStartPosition;
     private Position dragEndPosition;
+    private String uploadLogTime;//上传日志命令中 上传日志的时间配置
 
     private ControlMessage() {
     }
@@ -224,6 +226,12 @@ public final class ControlMessage {
         msg.id = id;
         return msg;
     }
+    public static ControlMessage createUploadLog(String timeConfig) {
+        ControlMessage msg = new ControlMessage();
+        msg.type = TYPE_UPLOAD_LOG;
+        msg.uploadLogTime = timeConfig;
+        return msg;
+    }
 
 
 
@@ -335,5 +343,11 @@ public final class ControlMessage {
         this.duration = duration;
     }
 
+    public String getUploadLogTime() {
+        return uploadLogTime;
+    }
 
+    public void setUploadLogTime(String uploadLogTime) {
+        this.uploadLogTime = uploadLogTime;
+    }
 }

@@ -10,6 +10,8 @@ import com.genymobile.scrcpy.custom.controll.MockDoubleClickImpl;
 import com.genymobile.scrcpy.custom.controll.ScreenShotImpl;
 import com.genymobile.scrcpy.custom.controll.SleepImpl;
 import com.genymobile.scrcpy.custom.report.ControlReporter;
+import com.genymobile.scrcpy.log.LogFileLoader;
+import com.genymobile.scrcpy.log.LogReqBean;
 import com.genymobile.scrcpy.util.Logger;
 import com.genymobile.scrcpy.custom.ScrcpyConfig;
 import com.genymobile.scrcpy.device.Device;
@@ -29,6 +31,7 @@ import com.genymobile.scrcpy.wrappers.ServiceManager;
 import android.content.Intent;
 import android.os.Build;
 import android.os.SystemClock;
+import android.text.TextUtils;
 import android.util.Pair;
 import android.view.InputDevice;
 import android.view.KeyCharacterMap;
@@ -365,11 +368,38 @@ public class Controller implements AsyncProcessor, VirtualDisplayListener {
             case ControlMessage.TYPE_SLEEP:
                 startSleep(msg);
                 break;
+            case ControlMessage.TYPE_UPLOAD_LOG:
+                startUploadLog(msg);
+                break;
             default:
                 // do nothing
         }
 
         return true;
+    }
+
+    private void startUploadLog(ControlMessage msg) {
+        String uploadLogTime = msg.getUploadLogTime();
+        if (!TextUtils.isEmpty(uploadLogTime)) {
+            // 20260130-13,14
+            String[] dateHour = uploadLogTime.split("-");
+            String date = dateHour[0];
+            String[] hours = dateHour[1].split(",");
+            for (String hour : hours) {
+                LogReqBean reqBean = new LogReqBean(date, hour);
+                new LogFileLoader().startLoader(reqBean, new LogFileLoader.OnEventListener() {
+                    @Override
+                    public void onFileLoadSuccess(LogReqBean reqBean, String filePath, String fileName) {
+                        sender.send(DeviceMessage.createUploadLogFile(msg.getId(),filePath,fileName));
+                    }
+
+                    @Override
+                    public void onFileLoadFailed(LogReqBean reqBean, int code, String errorMsg) {
+                        sender.send(DeviceMessage.createUploadLogError(msg.getId(),code,errorMsg));
+                    }
+                });
+            }
+        }
     }
 
     private void startSleep(ControlMessage msg) {
@@ -402,21 +432,22 @@ public class Controller implements AsyncProcessor, VirtualDisplayListener {
         ScreenShotImpl screenShotImpl = new ScreenShotImpl();
         screenShotImpl.setListener(new ScreenShotImpl.OnEventListener() {
             @Override
-            public void onUploadSuccess() {
-                ControlReporter.getInstance().reportEnd(msg);
+            public void onGetScreenShotSuccess(String filePath) {
+                sender.send(DeviceMessage.createUploadScreenShot(msg.getId(),filePath));
             }
 
             @Override
-            public void onUploadFailed(int code, String errorMsg) {
-                ControlReporter.getInstance().reportEnd(msg);
+            public void onGetScreenShotFailed(int code, String msg) {
+
             }
+
+
         });
         screenShotImpl.startScreenshot(size.getWidth(),size.getHeight());
     }
 
     private void onScreenShotResult(ControlMessage msg) {
         ControlReporter.getInstance().reportEnd(msg);
-
     }
 
     private void injectMockClick(ControlMessage msg) {

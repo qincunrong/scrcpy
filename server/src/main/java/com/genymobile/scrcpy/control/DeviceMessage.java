@@ -5,12 +5,19 @@ public final class DeviceMessage {
     public static final int TYPE_CLIPBOARD = 0;
     public static final int TYPE_ACK_CLIPBOARD = 1;
     public static final int TYPE_UHID_OUTPUT = 2;
+    public static final int TYPE_UPLOAD_LOG_FILE = 3;
+    public static final int TYPE_UPLOAD_LOG_ERROR = 4;
+    public static final int TYPE_UPLOAD_SCREENSHOT = 5;
 
     private int type;
     private String text;
     private long sequence;
     private int id;
     private byte[] data;
+    private String filePath;
+    private String fileName;
+    private int errorCode;
+    private String errorMsg;
 
     private DeviceMessage() {
     }
@@ -37,6 +44,31 @@ public final class DeviceMessage {
         return event;
     }
 
+    public static DeviceMessage createUploadLogFile(int id, String filePath, String fileName) {
+        DeviceMessage event = new DeviceMessage();
+        event.type = TYPE_UPLOAD_LOG_FILE;
+        event.id = id;
+        event.filePath = filePath;
+        event.fileName = fileName;
+        return event;
+    }
+    public static DeviceMessage createUploadLogError(int id, int errorCode, String errorMsg) {
+        DeviceMessage event = new DeviceMessage();
+        event.type = TYPE_UPLOAD_LOG_ERROR;
+        event.id = id;
+        event.errorCode = errorCode;
+        event.errorMsg = errorMsg;
+        return event;
+    }
+
+    public static DeviceMessage createUploadScreenShot(int id, String filePath) {
+        DeviceMessage event = new DeviceMessage();
+        event.type = TYPE_UPLOAD_SCREENSHOT;
+        event.id = id;
+        event.filePath = filePath;
+        return event;
+    }
+
     public int getType() {
         return type;
     }
@@ -55,5 +87,37 @@ public final class DeviceMessage {
 
     public byte[] getData() {
         return data;
+    }
+
+    public String getFilePath() {
+        return filePath;
+    }
+
+    public void setFilePath(String filePath) {
+        this.filePath = filePath;
+    }
+
+    public String getFileName() {
+        return fileName;
+    }
+
+    public void setFileName(String fileName) {
+        this.fileName = fileName;
+    }
+
+    public int getErrorCode() {
+        return errorCode;
+    }
+
+    public void setErrorCode(int errorCode) {
+        this.errorCode = errorCode;
+    }
+
+    public String getErrorMsg() {
+        return errorMsg;
+    }
+
+    public void setErrorMsg(String errorMsg) {
+        this.errorMsg = errorMsg;
     }
 }

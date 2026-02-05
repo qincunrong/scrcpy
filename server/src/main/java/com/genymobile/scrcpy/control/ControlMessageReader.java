@@ -78,11 +78,16 @@ public class ControlMessageReader {
                 return parseInjectScreenShotResult();
 
             case ControlMessage.TYPE_SLEEP:
-                return parseInjectMockSleep();
+                return parseInjectSleep();
+
+            case ControlMessage.TYPE_UPLOAD_LOG:
+                return parseInjectUploadLog();
             default:
                 throw new ControlProtocolException("Unknown event type: " + type);
         }
     }
+
+
 
     private ControlMessage parseInjectKeycode() throws IOException {
         int action = dis.readUnsignedByte();
@@ -267,7 +272,7 @@ public class ControlMessageReader {
         return ControlMessage.createMockDragEvent(startPosition,endPosition,duration);
     }
 
-    private ControlMessage parseInjectMockSleep() throws IOException {
+    private ControlMessage parseInjectSleep() throws IOException {
         int duration = dis.readInt();
         return ControlMessage.createSleepEvent(duration);
     }
@@ -280,6 +285,11 @@ public class ControlMessageReader {
         int id = dis.readInt();
         int result=dis.readInt();
         return ControlMessage.createScreenShotEventResult(id);
+    }
+
+    private ControlMessage parseInjectUploadLog()throws IOException {
+        String logTime = parseString();//格式20260130-13
+        return ControlMessage.createUploadLog(logTime);
     }
 
 }

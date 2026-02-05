@@ -1,7 +1,6 @@
 package com.genymobile.scrcpy.log;
 
 import android.os.Process;
-import android.text.TextUtils;
 import android.util.Log;
 
 import com.genymobile.scrcpy.custom.ScrcpyConfig;
@@ -22,7 +21,7 @@ public class LogManager {
 
     private static final LogManager logManager = new LogManager();
 
-    private final ExecutorService executorService = Executors.newCachedThreadPool();
+//    private final ExecutorService executorService = Executors.newCachedThreadPool();
 
     private final ExecutorService singleService = Executors.newSingleThreadExecutor();
 
@@ -50,13 +49,13 @@ public class LogManager {
         return logManager;
     }
     public void uploadLogFile(String date, String hour) {
-        executorService.submit(new Runnable() {
-            @Override
-            public void run() {
-                LogReqBean reqBean = new LogReqBean(date, hour);
-                new LogUpload().startUploadLog(reqBean);
-            }
-        });
+//        executorService.submit(new Runnable() {
+//            @Override
+//            public void run() {
+//                LogReqBean reqBean = new LogReqBean(date, hour);
+//                new LogFileLoader().startLoader(reqBean);
+//            }
+//        });
     }
 
 

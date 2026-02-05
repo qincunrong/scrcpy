@@ -16,4 +16,8 @@ public class ScrcpyConfig {
     public static String getLogDir() {
         return "/data/local/tmp/scrcpy/log";
     }
+
+    public static String getTempDir() {
+        return "/data/local/tmp/scrcpy/temp";
+    }
 }

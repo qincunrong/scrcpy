@@ -8,8 +8,12 @@ public class LogReqBean {
 
     public LogReqBean(String date, String hour) {
         this.date = date;
+        if (hour!=null
+                &&hour.trim().length() == 1) {
+            hour = "0" + hour.trim();
+        }
         this.hour = hour;
-        fileName = date + "-" + hour + ".log";
+        fileName = date + "-" + this.hour + ".log";
     }
 
     public String getFileName() {

@@ -71,7 +71,7 @@ public class ControlReporter {
             }
             if (!TextUtils.isEmpty(msg)) {
                 Logger.i("reporter","msg:"+msg);
-                LogManager.getLogManager().cacheLog("", msg);
+                LogManager.getLogManager().cacheLog("control", msg);
             }else {
 
             }

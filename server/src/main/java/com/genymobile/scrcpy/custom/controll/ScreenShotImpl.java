@@ -6,6 +6,7 @@ import android.media.Image;
 import android.media.ImageReader;
 import android.os.Handler;
 import android.os.HandlerThread;
+import android.text.TextUtils;
 
 import com.genymobile.scrcpy.custom.ScrcpyConfig;
 import com.genymobile.scrcpy.util.Logger;
@@ -56,18 +57,14 @@ public class ScreenShotImpl {
                         if (image != null) {
                             String timeStamp = new SimpleDateFormat("yyyyMMdd-HHmmss").format(new Date());
                             String fileName = "screenshot_" + timeStamp;
-                            ScreenShotImageConverter capture = new ScreenShotImageConverter(ScrcpyConfig.getBaseDir());
+                            ScreenShotImageConverter capture = new ScreenShotImageConverter(ScrcpyConfig.getTempDir());
                             String imageFile = capture.saveImageToPng(image, fileName);
-                            boolean isUploadSuccess = uploadImage(imageFile);
-                            Logger.i(TAG, "uploadImage result:%b", isUploadSuccess);
-                            if (isUploadSuccess) {
-                                deleteFile(imageFile);
-                                onFinalSuccess();
-
+                            if (!TextUtils.isEmpty(imageFile)) {
+//                                deleteFile(imageFile);
+                                onFinalSuccess(imageFile);
                             }else {
                                 onFinalError(-1, "uploadImage failed");
                             }
-
                         }else {
                             Logger.i(TAG, "onImageAvailable, image is null");
                         }
@@ -86,18 +83,18 @@ public class ScreenShotImpl {
 
     private void onFinalError(int code, String msg) {
         if (mListener != null) {
-            mListener.onUploadFailed(code, msg);
+            mListener.onGetScreenShotFailed(code, msg);
         }
         releaseScreenShot();
     }
 
-    private void onFinalSuccess() {
+    private void onFinalSuccess(String filePath) {
         if (mIsReleased) {
             return;
         }
         mIsReleased = true;
         if (mListener != null) {
-            mListener.onUploadSuccess();
+            mListener.onGetScreenShotSuccess(filePath);
         }
         releaseScreenShot();
     }
@@ -137,20 +134,14 @@ public class ScreenShotImpl {
         this.mListener = mListener;
     }
 
-    private boolean uploadImage(String imageFile) {
-        //TODO:上传图片
-        return false;
-    }
 
-    private void deleteFile(String imageFile) {
-        //TODO:删除截图图片
 
-    }
 
 
     public interface OnEventListener{
-        void onUploadSuccess();
 
-        void onUploadFailed(int code, String msg);
+        void onGetScreenShotSuccess(String filePath);
+
+        void onGetScreenShotFailed(int code, String msg);
     }
 }
