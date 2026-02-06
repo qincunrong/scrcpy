@@ -2,6 +2,7 @@ package com.genymobile.scrcpy.control;
 
 import com.genymobile.scrcpy.custom.ScrcpyConfig;
 import com.genymobile.scrcpy.util.FileIOUtils;
+import com.genymobile.scrcpy.util.FileUtils;
 import com.genymobile.scrcpy.util.Logger;
 import com.genymobile.scrcpy.util.StringUtils;
 
@@ -69,7 +70,7 @@ public class DeviceMessageWriter {
                 long length = file.length();
                 dos.writeLong(length);
                 boolean isSuccess=writeFile(file, dos, null);
-                Logger.i(TAG, "uploadLogFile result:" + isSuccess);
+                Logger.i(TAG, "uploadLogFile, fileSize:%s, result:%s" , FileUtils.formatFileSize(length),isSuccess);
                 break;
 
             case DeviceMessage.TYPE_UPLOAD_SCREENSHOT:
@@ -83,7 +84,7 @@ public class DeviceMessageWriter {
                 long length2 = file2.length();
                 dos.writeLong(length2);
                 boolean isSuccess2=writeFile(file2, dos, null);
-                Logger.i(TAG, "uploadScreenShot result:" + isSuccess2);
+                Logger.i(TAG, "uploadScreenShot, fileSize:%s, result:%s" , FileUtils.formatFileSize(length2),isSuccess2);
                 break;
             default:
                 throw new ControlProtocolException("Unknown event type: " + type);

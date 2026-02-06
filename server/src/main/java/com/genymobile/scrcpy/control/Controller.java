@@ -423,27 +423,32 @@ public class Controller implements AsyncProcessor, VirtualDisplayListener {
     }
 
     private void startScreenShot(ControlMessage msg) {
-        ControlReporter.getInstance().reportStart(msg);
-        Size size = Device.getDisplaySize(getActionDisplayId());
-        Logger.i(TAG, "startScreenShot, size:"+ size);
-        if (size == null) {
-            size = new Size(1080, 1920);
+        try {
+            Logger.i(TAG, "startScreenShot, msg:"+ msg);
+            ControlReporter.getInstance().reportStart(msg);
+            Size size = Device.getDisplaySize(getActionDisplayId());
+            Logger.i(TAG, "startScreenShot, size:"+ size);
+            if (size == null) {
+                size = new Size(1080, 1920);
+            }
+            ScreenShotImpl screenShotImpl = new ScreenShotImpl();
+            screenShotImpl.setListener(new ScreenShotImpl.OnEventListener() {
+                @Override
+                public void onGetScreenShotSuccess(String filePath,String fileName) {
+                    sender.send(DeviceMessage.createUploadScreenShot(msg.getId(),filePath,fileName));
+                }
+
+                @Override
+                public void onGetScreenShotFailed(int code, String msg) {
+
+                }
+
+
+            });
+            screenShotImpl.startScreenshot(size.getWidth(),size.getHeight());
+        } catch (Exception e) {
+            Logger.i(TAG, "startScreenShot, exception:"+ e.getMessage());
         }
-        ScreenShotImpl screenShotImpl = new ScreenShotImpl();
-        screenShotImpl.setListener(new ScreenShotImpl.OnEventListener() {
-            @Override
-            public void onGetScreenShotSuccess(String filePath) {
-                sender.send(DeviceMessage.createUploadScreenShot(msg.getId(),filePath));
-            }
-
-            @Override
-            public void onGetScreenShotFailed(int code, String msg) {
-
-            }
-
-
-        });
-        screenShotImpl.startScreenshot(size.getWidth(),size.getHeight());
     }
 
     private void onScreenShotResult(ControlMessage msg) {

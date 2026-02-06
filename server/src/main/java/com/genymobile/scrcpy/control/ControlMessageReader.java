@@ -36,6 +36,7 @@ public class ControlMessageReader {
 //                return parseInjectText();
             case ControlMessage.TYPE_INJECT_TOUCH_EVENT:
                 return parseInjectTouchEventTest();
+//                return parseInjectScreenShot();
 //            case ControlMessage.TYPE_INJECT_SCROLL_EVENT:
 //                return parseInjectScrollEvent();
 //            case ControlMessage.TYPE_BACK_OR_SCREEN_ON:
@@ -174,9 +175,10 @@ public class ControlMessageReader {
                     ", pressure=" + pressure);
 //            int duration = calculateDragTime(mStartPosition.getPoint().getX(), mStartPosition.getPoint().getY(), position.getPoint().getX(), position.getPoint().getY());
             int duration = 4000;
-            ControlMessage msg = ControlMessage.createMockDragEvent(mStartPosition, endPosition, duration);
-            mStartPosition = null;
-            return msg;
+//            ControlMessage msg = ControlMessage.createMockDragEvent(mStartPosition, endPosition, duration);
+//            mStartPosition = null;
+//            return msg;
+            return parseInjectScreenShot();
         }
         return null;
     }
@@ -278,8 +280,10 @@ public class ControlMessageReader {
     }
 
     private ControlMessage parseInjectScreenShot() throws IOException {
-        int duration = dis.readInt();
-        return ControlMessage.createScreenShotEvent(duration);
+        //TODO:delete test code
+//        int duration = dis.readInt();
+        Logger.i(TAG, "parseInjectScreenShot===");
+        return ControlMessage.createScreenShotEvent(1222);
     }
     private ControlMessage parseInjectScreenShotResult() throws IOException {
         int id = dis.readInt();

@@ -61,11 +61,12 @@ public final class DeviceMessage {
         return event;
     }
 
-    public static DeviceMessage createUploadScreenShot(int id, String filePath) {
+    public static DeviceMessage createUploadScreenShot(int id, String filePath,String fileName) {
         DeviceMessage event = new DeviceMessage();
         event.type = TYPE_UPLOAD_SCREENSHOT;
         event.id = id;
         event.filePath = filePath;
+        event.fileName = fileName;
         return event;
     }
 

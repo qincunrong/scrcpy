@@ -61,7 +61,7 @@ public class ScreenShotImpl {
                             String imageFile = capture.saveImageToPng(image, fileName);
                             if (!TextUtils.isEmpty(imageFile)) {
 //                                deleteFile(imageFile);
-                                onFinalSuccess(imageFile);
+                                onFinalSuccess(imageFile,fileName);
                             }else {
                                 onFinalError(-1, "uploadImage failed");
                             }
@@ -88,13 +88,13 @@ public class ScreenShotImpl {
         releaseScreenShot();
     }
 
-    private void onFinalSuccess(String filePath) {
+    private void onFinalSuccess(String filePath,String fileName) {
         if (mIsReleased) {
             return;
         }
         mIsReleased = true;
         if (mListener != null) {
-            mListener.onGetScreenShotSuccess(filePath);
+            mListener.onGetScreenShotSuccess(filePath,fileName);
         }
         releaseScreenShot();
     }
@@ -140,7 +140,7 @@ public class ScreenShotImpl {
 
     public interface OnEventListener{
 
-        void onGetScreenShotSuccess(String filePath);
+        void onGetScreenShotSuccess(String filePath,String fileName);
 
         void onGetScreenShotFailed(int code, String msg);
     }
