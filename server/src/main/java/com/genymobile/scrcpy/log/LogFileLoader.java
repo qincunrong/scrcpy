@@ -30,9 +30,9 @@ public class LogFileLoader {
             String path = ScrcpyConfig.getLogDir() + File.separator + reqBean.getDate();
             String fileName = reqBean.getFileName();
             String tag = "uploadLog-"+fileName;
-            File sourceFile = new File(path, fileName);
+            File sourceFile = new File(path, fileName+reqBean.getExtend());
             Logger.i(tag, "srcFile:" + sourceFile.getAbsolutePath());
-            File tempFile = new File(path, "temp_" + fileName+"_"+ TimeUtils.getTimeStamp());
+            File tempFile = new File(path, "temp_" + fileName+"_"+ TimeUtils.getTimeStamp()+reqBean.getExtend());
             if (!sourceFile.exists()) {
                 Logger.i(tag, "file not exist");
                 onFileLoaderError(reqBean,ERROR_NO_LOG_FILE,"日志文件不存在");
@@ -50,7 +50,7 @@ public class LogFileLoader {
                 onFileLoaderError(reqBean,ERROR_COPY_FAILED,"拷贝日志文件失败");
                 return;
             }
-            onFileLoaderSuccess(reqBean,tempFile.getAbsolutePath(), fileName);
+            onFileLoaderSuccess(reqBean,tempFile.getAbsolutePath());
         } catch (Exception e) {
             Logger.i("uploadLog-"+reqBean.getFileName(), "upload failed:" + e.getMessage());
             e.printStackTrace();
@@ -64,15 +64,15 @@ public class LogFileLoader {
         }
     }
 
-    private void onFileLoaderSuccess(LogReqBean reqBean,String filePath,String fileName) {
+    private void onFileLoaderSuccess(LogReqBean reqBean,String filePath) {
         if (mListener != null) {
-            mListener.onFileLoadSuccess(reqBean,filePath,fileName);
+            mListener.onFileLoadSuccess(reqBean,filePath);
         }
     }
 
 
     public interface OnEventListener{
-        void onFileLoadSuccess(LogReqBean reqBean, String filePath,String fileName);
+        void onFileLoadSuccess(LogReqBean reqBean, String filePath);
         void onFileLoadFailed(LogReqBean reqBean, int code, String msg);
     }
 

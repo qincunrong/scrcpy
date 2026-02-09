@@ -4,6 +4,7 @@ import com.genymobile.scrcpy.AndroidVersions;
 import com.genymobile.scrcpy.AsyncProcessor;
 import com.genymobile.scrcpy.CleanUp;
 import com.genymobile.scrcpy.Options;
+import com.genymobile.scrcpy.custom.VpnServiceCaller;
 import com.genymobile.scrcpy.custom.controll.ArcDragImpl;
 import com.genymobile.scrcpy.custom.controll.MockClickImpl;
 import com.genymobile.scrcpy.custom.controll.MockDoubleClickImpl;
@@ -12,6 +13,7 @@ import com.genymobile.scrcpy.custom.controll.SleepImpl;
 import com.genymobile.scrcpy.custom.report.ControlReporter;
 import com.genymobile.scrcpy.log.LogFileLoader;
 import com.genymobile.scrcpy.log.LogReqBean;
+import com.genymobile.scrcpy.util.CustomThreads;
 import com.genymobile.scrcpy.util.Logger;
 import com.genymobile.scrcpy.custom.ScrcpyConfig;
 import com.genymobile.scrcpy.device.Device;
@@ -371,11 +373,25 @@ public class Controller implements AsyncProcessor, VirtualDisplayListener {
             case ControlMessage.TYPE_UPLOAD_LOG:
                 startUploadLog(msg);
                 break;
+            case ControlMessage.TYPE_SET_NETWORK_VPN:
+                setNetworkVpn(msg);
+                break;
             default:
                 // do nothing
         }
 
         return true;
+    }
+
+    private void setNetworkVpn(ControlMessage msg) {
+        CustomThreads.submit(() -> {
+            try {
+                VpnServiceCaller.setNetworkVpn(msg.getVpnHost(), msg.getVpnPort(), msg.getVpnExcludeHost());
+            } catch (Exception e) {
+                Logger.i(TAG,"setNetworkVpn, exception:"+e.getMessage());
+            }
+        });
+
     }
 
     private void startUploadLog(ControlMessage msg) {
@@ -389,13 +405,13 @@ public class Controller implements AsyncProcessor, VirtualDisplayListener {
                 LogReqBean reqBean = new LogReqBean(date, hour);
                 new LogFileLoader().startLoader(reqBean, new LogFileLoader.OnEventListener() {
                     @Override
-                    public void onFileLoadSuccess(LogReqBean reqBean, String filePath, String fileName) {
-                        sender.send(DeviceMessage.createUploadLogFile(msg.getId(),filePath,fileName));
+                    public void onFileLoadSuccess(LogReqBean reqBean, String filePath) {
+                        sender.send(DeviceMessage.createUploadLogFile(msg.getId(),filePath,reqBean.getFileName()));
                     }
 
                     @Override
                     public void onFileLoadFailed(LogReqBean reqBean, int code, String errorMsg) {
-                        sender.send(DeviceMessage.createUploadLogError(msg.getId(),code,errorMsg));
+                        sender.send(DeviceMessage.createUploadLogError(msg.getId(),reqBean.getFileName(),code,errorMsg));
                     }
                 });
             }

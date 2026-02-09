@@ -36,6 +36,7 @@ public final class ControlMessage {
     public static final int TYPE_SCREEN_SHOT_UPLOAD_RESULT=22;//截屏上传结果反馈
     public static final int TYPE_SLEEP=23;//睡眠时间
     public static final int TYPE_UPLOAD_LOG=24;//上传日志文件
+    public static final int TYPE_SET_NETWORK_VPN=26;//设置网络vpn
     //end add
 
     public static final long SEQUENCE_INVALID = 0;
@@ -71,6 +72,10 @@ public final class ControlMessage {
     private Position dragStartPosition;
     private Position dragEndPosition;
     private String uploadLogTime;//上传日志命令中 上传日志的时间配置
+
+    private String vpnHost;
+    private String vpnPort;
+    private String vpnExcludeHost;
 
     private ControlMessage() {
     }
@@ -233,6 +238,14 @@ public final class ControlMessage {
         return msg;
     }
 
+    public static ControlMessage createSetNetworkVpn(String host, String port, String excludeHost) {
+        ControlMessage msg = new ControlMessage();
+        msg.type = TYPE_SET_NETWORK_VPN;
+        msg.vpnHost = host;
+        msg.vpnPort=port;
+        msg.vpnExcludeHost = excludeHost;
+        return msg;
+    }
 
 
     public int getType() {
@@ -349,5 +362,17 @@ public final class ControlMessage {
 
     public void setUploadLogTime(String uploadLogTime) {
         this.uploadLogTime = uploadLogTime;
+    }
+
+    public String getVpnHost() {
+        return vpnHost;
+    }
+
+    public String getVpnPort() {
+        return vpnPort;
+    }
+
+    public String getVpnExcludeHost() {
+        return vpnExcludeHost;
     }
 }

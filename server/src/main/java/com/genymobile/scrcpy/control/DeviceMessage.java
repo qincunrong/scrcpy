@@ -1,5 +1,7 @@
 package com.genymobile.scrcpy.control;
 
+import java.util.Arrays;
+
 public final class DeviceMessage {
 
     public static final int TYPE_CLIPBOARD = 0;
@@ -52,12 +54,13 @@ public final class DeviceMessage {
         event.fileName = fileName;
         return event;
     }
-    public static DeviceMessage createUploadLogError(int id, int errorCode, String errorMsg) {
+    public static DeviceMessage createUploadLogError(int id, String fileName,int errorCode, String errorMsg) {
         DeviceMessage event = new DeviceMessage();
         event.type = TYPE_UPLOAD_LOG_ERROR;
         event.id = id;
         event.errorCode = errorCode;
         event.errorMsg = errorMsg;
+        event.fileName = fileName;
         return event;
     }
 
@@ -120,5 +123,19 @@ public final class DeviceMessage {
 
     public void setErrorMsg(String errorMsg) {
         this.errorMsg = errorMsg;
+    }
+
+    @Override
+    public String toString() {
+        return "{" +
+                "type=" + type +
+                ", text='" + text + '\'' +
+                ", sequence=" + sequence +
+                ", id=" + id +
+                ", filePath='" + filePath + '\'' +
+                ", fileName='" + fileName + '\'' +
+                ", errorCode=" + errorCode +
+                ", errorMsg='" + errorMsg + '\'' +
+                '}';
     }
 }

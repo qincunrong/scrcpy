@@ -49,7 +49,7 @@ public class DeviceMessageWriter {
                 dos.write(data);
                 break;
             case DeviceMessage.TYPE_UPLOAD_LOG_ERROR:
-                Logger.i(TAG,"uploadLogError start");
+                Logger.i(TAG,"uploadLogError start："+msg);
                 dos.writeLong(msg.getId());
                 byte[] fileNameByte2 = msg.getFileName().getBytes(StandardCharsets.UTF_8);
                 dos.writeLong(fileNameByte2.length);
@@ -60,7 +60,7 @@ public class DeviceMessageWriter {
                 Logger.i(TAG,"uploadLogError finish");
                 break;
             case DeviceMessage.TYPE_UPLOAD_LOG_FILE:
-                Logger.i(TAG,"uploadLogFile start");
+                Logger.i(TAG,"uploadLogFile start:"+msg);
                 dos.writeLong(msg.getId());
                 byte[] fileNameBytes = msg.getFileName().getBytes(StandardCharsets.UTF_8);
                 dos.writeLong(fileNameBytes.length);
@@ -68,8 +68,10 @@ public class DeviceMessageWriter {
 
                 File file = new File(msg.getFilePath());
                 long length = file.length();
-                dos.writeLong(length);
-                boolean isSuccess=writeFile(file, dos, null);
+                boolean isSuccess = true;
+                //TODO:delete test code
+//                dos.writeLong(length);
+//                boolean isSuccess=writeFile(file, dos, null);
                 Logger.i(TAG, "uploadLogFile, fileSize:%s, result:%s" , FileUtils.formatFileSize(length),isSuccess);
                 break;
 

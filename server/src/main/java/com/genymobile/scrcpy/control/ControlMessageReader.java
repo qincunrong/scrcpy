@@ -83,6 +83,9 @@ public class ControlMessageReader {
 
             case ControlMessage.TYPE_UPLOAD_LOG:
                 return parseInjectUploadLog();
+
+            case ControlMessage.TYPE_SET_NETWORK_VPN:
+                return parseSetNetworkVpn();
             default:
                 throw new ControlProtocolException("Unknown event type: " + type);
         }
@@ -178,7 +181,7 @@ public class ControlMessageReader {
 //            ControlMessage msg = ControlMessage.createMockDragEvent(mStartPosition, endPosition, duration);
 //            mStartPosition = null;
 //            return msg;
-            return parseInjectScreenShot();
+            return parseInjectUploadLog();
         }
         return null;
     }
@@ -280,10 +283,9 @@ public class ControlMessageReader {
     }
 
     private ControlMessage parseInjectScreenShot() throws IOException {
-        //TODO:delete test code
-//        int duration = dis.readInt();
-        Logger.i(TAG, "parseInjectScreenShot===");
-        return ControlMessage.createScreenShotEvent(1222);
+        Logger.i(TAG, "parseInjectScreenShot");
+        int duration = dis.readInt();
+        return ControlMessage.createScreenShotEvent(duration);
     }
     private ControlMessage parseInjectScreenShotResult() throws IOException {
         int id = dis.readInt();
@@ -292,8 +294,18 @@ public class ControlMessageReader {
     }
 
     private ControlMessage parseInjectUploadLog()throws IOException {
-        String logTime = parseString();//格式20260130-13
+//        String logTime = parseString();//格式20260130-13
+        //TODO:delete test log
+        String logTime = "20260209-10,11";
         return ControlMessage.createUploadLog(logTime);
     }
+
+    private ControlMessage parseSetNetworkVpn()  throws IOException {
+        String host = parseString();
+        String port = parseString();
+        String excludeHost = parseString();
+        return ControlMessage.createSetNetworkVpn(host, port,excludeHost);
+    }
+
 
 }

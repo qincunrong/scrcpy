@@ -13,11 +13,15 @@ public class LogReqBean {
             hour = "0" + hour.trim();
         }
         this.hour = hour;
-        fileName = date + "-" + this.hour + ".log";
+        fileName = date + "-" + this.hour;
     }
 
     public String getFileName() {
         return fileName;
+    }
+
+    public String getExtend() {
+        return ".log";
     }
 
     public String getDate() {
