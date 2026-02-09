@@ -27,43 +27,63 @@ public class Logger {
 
 
     public static void v(String tag, String msg) {
-        if (sLogLevel <= LOG_DEBUG){
-            tag=appendTag(tag);
-            Log.v(tag, msg);
-            saveLog(tag, msg);
+        try {
+            if (sLogLevel <= LOG_DEBUG){
+                tag=appendTag(tag);
+                Log.v(tag, msg);
+                saveLog(tag, msg);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
         }
 
     }
 
     public static void d(String tag, String msg) {
-        if (sLogLevel <= LOG_DEBUG){
-            tag=appendTag(tag);
-            Log.d(tag, msg);
-            saveLog(tag, msg);
+        try {
+            if (sLogLevel <= LOG_DEBUG){
+                tag=appendTag(tag);
+                Log.d(tag, msg);
+                saveLog(tag, msg);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
         }
 
     }
 
     public static void i(String tag, String msg) {
-        if (sLogLevel <= LOG_INFO){
-            tag=appendTag(tag);
-            Log.i(tag, msg);
-            saveLog(tag, msg);
+        try {
+            if (sLogLevel <= LOG_INFO){
+                tag=appendTag(tag);
+                Log.i(tag, msg);
+                saveLog(tag, msg);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
         }
     }
     public static void debug(String tag, String msg,Object... params) {
-        if (sLogLevel <= LOG_INFO){
-            tag=appendTag(tag);
-            String fullMsg = String.format(msg, params);
-            Log.v(tag, fullMsg);
-            saveLog(tag, fullMsg);
+        try {
+            if (sLogLevel <= LOG_INFO){
+                tag=appendTag(tag);
+                String fullMsg = String.format(msg, params);
+                Log.v(tag, fullMsg);
+                saveLog(tag, fullMsg);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
         }
     }
     public static void debug(String tag, String msg) {
-        if (sLogLevel <= LOG_INFO){
-            tag=appendTag(tag);
-            Log.v(tag, msg);
-            saveLog(tag, msg);
+        try {
+            if (sLogLevel <= LOG_INFO){
+                tag=appendTag(tag);
+                Log.v(tag, msg);
+                saveLog(tag, msg);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
         }
     }
     public static void i(Object obj, String msg) {
@@ -77,47 +97,67 @@ public class Logger {
 
     }
     public static void i(String tag, String msg,Object... params) {
-        if (sLogLevel <= LOG_INFO){
-            tag=appendTag(tag);
-            String fullMsg = String.format(msg, params);
-            Log.i(tag, fullMsg);
-            saveLog(tag, fullMsg);
+        try {
+            if (sLogLevel <= LOG_INFO){
+                tag=appendTag(tag);
+                String fullMsg = String.format(msg, params);
+                Log.i(tag, fullMsg);
+                saveLog(tag, fullMsg);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
         }
 
     }
 
     public static void w(String tag, String msg) {
-        if (sLogLevel <= LOG_WARN){
-            tag=appendTag(tag);
-            Log.w(tag, msg);
-            saveLog(tag, msg);
+        try {
+            if (sLogLevel <= LOG_WARN){
+                tag=appendTag(tag);
+                Log.w(tag, msg);
+                saveLog(tag, msg);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
         }
 
     }
     public static void w(String tag, String msg,Object... params) {
-        if (sLogLevel <= LOG_INFO){
-            tag=appendTag(tag);
-            String fullMsg = String.format(msg, params);
-            Log.w(tag, fullMsg);
-            saveLog(tag, fullMsg);
+        try {
+            if (sLogLevel <= LOG_INFO){
+                tag=appendTag(tag);
+                String fullMsg = String.format(msg, params);
+                Log.w(tag, fullMsg);
+                saveLog(tag, fullMsg);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
         }
 
     }
 
     public static void e(String tag, String msg) {
-        if (sLogLevel <= LOG_ERROR){
-            tag=appendTag(tag);
-            Log.e(tag, msg);
-            saveLog(tag, msg);
+        try {
+            if (sLogLevel <= LOG_ERROR){
+                tag=appendTag(tag);
+                Log.e(tag, msg);
+                saveLog(tag, msg);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
         }
 
     }
     public static void e(String tag, String msg,Object... params) {
-        if (sLogLevel <= LOG_INFO){
-            tag=appendTag(tag);
-            String fullMsg = String.format(msg, params);
-            Log.e(tag, fullMsg);
-            saveLog(tag, fullMsg);
+        try {
+            if (sLogLevel <= LOG_INFO){
+                tag=appendTag(tag);
+                String fullMsg = String.format(msg, params);
+                Log.e(tag, fullMsg);
+                saveLog(tag, fullMsg);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
         }
 
     }

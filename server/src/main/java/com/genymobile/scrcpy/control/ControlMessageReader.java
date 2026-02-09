@@ -15,7 +15,7 @@ import java.nio.charset.StandardCharsets;
 
 public class ControlMessageReader {
 
-    public static final String TAG = "ControlMessageReader";
+    public static final String TAG = "ControlMsgReader";
     private static final int MESSAGE_MAX_SIZE = 1 << 18; // 256k
 
     public static final int CLIPBOARD_TEXT_MAX_LENGTH = MESSAGE_MAX_SIZE - 14; // type: 1 byte; sequence: 8 bytes; paste flag: 1 byte; length: 4 bytes
@@ -29,6 +29,7 @@ public class ControlMessageReader {
 
     public ControlMessage read() throws IOException {
         int type = dis.readUnsignedByte();
+
         switch (type) {
 //            case ControlMessage.TYPE_INJECT_KEYCODE:
 //                return parseInjectKeycode();
@@ -87,10 +88,14 @@ public class ControlMessageReader {
             case ControlMessage.TYPE_SET_NETWORK_VPN:
                 return parseSetNetworkVpn();
             default:
+                Logger.i(TAG,"receive type:%s" , getTypeDesc(type));
                 throw new ControlProtocolException("Unknown event type: " + type);
         }
     }
 
+    private String  getTypeDesc(int type) {
+        return type+"";
+    }
 
 
     private ControlMessage parseInjectKeycode() throws IOException {
@@ -146,6 +151,7 @@ public class ControlMessageReader {
     }
 
     private ControlMessage parseInjectTouchEventTest() throws IOException {
+        Logger.i(TAG, "receive, touchEvent");
         int action = dis.readUnsignedByte();
         long pointerId = dis.readLong();
         Position position = parsePosition();
@@ -261,16 +267,19 @@ public class ControlMessageReader {
 
     //add by qcr
     private ControlMessage parseInjectMockClickEvent() throws IOException {
+        Logger.i(TAG, "receive, mockClick");
         Position position = parsePosition();
         return ControlMessage.createMockClickEvent(position);
     }
 
     private ControlMessage parseInjectMockDoubleClickEvent() throws IOException {
+        Logger.i(TAG, "receive, mockDoubleClick");
         Position position = parsePosition();
         return ControlMessage.createMockDoubleClickEvent(position);
     }
 
     private ControlMessage parseInjectMockDragEvent() throws IOException {
+        Logger.i(TAG, "receive, mockDrag");
         Position startPosition = parsePosition();
         Position endPosition = parsePosition();
         int duration = dis.readUnsignedShort();
@@ -278,16 +287,18 @@ public class ControlMessageReader {
     }
 
     private ControlMessage parseInjectSleep() throws IOException {
+        Logger.i(TAG, "receive, sleep");
         int duration = dis.readInt();
         return ControlMessage.createSleepEvent(duration);
     }
 
     private ControlMessage parseInjectScreenShot() throws IOException {
-        Logger.i(TAG, "parseInjectScreenShot");
+        Logger.i(TAG, "receive, screenShot");
         int duration = dis.readInt();
         return ControlMessage.createScreenShotEvent(duration);
     }
     private ControlMessage parseInjectScreenShotResult() throws IOException {
+        Logger.i(TAG, "receive, screenShotResult");
         int id = dis.readInt();
         int result=dis.readInt();
         return ControlMessage.createScreenShotEventResult(id);
@@ -295,12 +306,14 @@ public class ControlMessageReader {
 
     private ControlMessage parseInjectUploadLog()throws IOException {
 //        String logTime = parseString();//格式20260130-13
+        Logger.i(TAG, "receive, uploadLog");
         //TODO:delete test log
         String logTime = "20260209-10,11";
         return ControlMessage.createUploadLog(logTime);
     }
 
     private ControlMessage parseSetNetworkVpn()  throws IOException {
+        Logger.i(TAG, "receive, setNetworkVpn");
         String host = parseString();
         String port = parseString();
         String excludeHost = parseString();

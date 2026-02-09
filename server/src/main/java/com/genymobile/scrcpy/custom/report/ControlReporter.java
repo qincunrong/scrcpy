@@ -62,18 +62,20 @@ public class ControlReporter {
                     msg = String.format("screenshot(%d)", message.getId());
                     break;
                 case ControlMessage.TYPE_SCREEN_SHOT_UPLOAD_RESULT:
-                    //TODO:查看上传结果
-    //                msg = String.format(" screenshotResult(%d,%s)", message.getId(),message.get);
+                    msg = String.format("screenshotResult(%d,%d)", message.getId(),message.getResultCode());
                     break;
                 case ControlMessage.TYPE_SLEEP:
                     msg = String.format("sleep(%d)", message.getDuration());
                     break;
+                case ControlMessage.TYPE_UPLOAD_LOG:
+                    msg = String.format("uploadLog(%s)", message.getUploadLogTime());
+                    break;
+                case ControlMessage.TYPE_SET_NETWORK_VPN:
+                    msg = String.format("setNetworkVpn(%s,%s,%s)", message.getVpnHost(),message.getVpnPort(),message.getVpnExcludeHost());
+                    break;
             }
             if (!TextUtils.isEmpty(msg)) {
                 Logger.i("reporter",msg);
-//                LogManager.getLogManager().cacheLog("control", msg);
-            }else {
-
             }
         } catch (Exception e) {
             Logger.i("reporter","exception:"+e.getMessage());

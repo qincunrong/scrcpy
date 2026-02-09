@@ -77,6 +77,8 @@ public final class ControlMessage {
     private String vpnPort;
     private String vpnExcludeHost;
 
+    private int resultCode;//文件上传结果
+
     private ControlMessage() {
     }
 
@@ -374,5 +376,13 @@ public final class ControlMessage {
 
     public String getVpnExcludeHost() {
         return vpnExcludeHost;
+    }
+
+    public int getResultCode() {
+        return resultCode;
+    }
+
+    public void setResultCode(int resultCode) {
+        this.resultCode = resultCode;
     }
 }
