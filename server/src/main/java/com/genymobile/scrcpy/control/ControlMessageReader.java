@@ -15,7 +15,7 @@ import java.nio.charset.StandardCharsets;
 
 public class ControlMessageReader {
 
-    public static final String TAG = ScrcpyConfig.getLogGroup() + "ControlMessageReader";
+    public static final String TAG = "ControlMessageReader";
     private static final int MESSAGE_MAX_SIZE = 1 << 18; // 256k
 
     public static final int CLIPBOARD_TEXT_MAX_LENGTH = MESSAGE_MAX_SIZE - 14; // type: 1 byte; sequence: 8 bytes; paste flag: 1 byte; length: 4 bytes

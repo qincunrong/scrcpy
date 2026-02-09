@@ -14,7 +14,7 @@ import com.genymobile.scrcpy.custom.ocr.SoExtracterAndLoader;
 import java.io.File;
 
 public class CustomTester {
-    public static final String TAG = ScrcpyConfig.getLogGroup()+"CustomTester";
+    public static final String TAG = "CustomTester";
 
     /**
      * 该方法准备OCR库包的资源：

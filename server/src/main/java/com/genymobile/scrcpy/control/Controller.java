@@ -66,7 +66,7 @@ public class Controller implements AsyncProcessor, VirtualDisplayListener {
      * sent to the virtual display id.
      */
 
-    public static final String TAG = ScrcpyConfig.getLogGroup() + "Controller";
+    public static final String TAG =  "Controller";
     private static final class DisplayData {
         private final int virtualDisplayId;
         private final PositionMapper positionMapper;

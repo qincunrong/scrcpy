@@ -19,7 +19,7 @@ import java.nio.charset.StandardCharsets;
 
 public class DeviceMessageWriter {
 
-    public static final String TAG = ScrcpyConfig.getLogGroup() + DeviceMessageWriter.class.getSimpleName();
+    public static final String TAG =  DeviceMessageWriter.class.getSimpleName();
     private static final int MESSAGE_MAX_SIZE = 1 << 18; // 256k
     public static final int CLIPBOARD_TEXT_MAX_LENGTH = MESSAGE_MAX_SIZE - 5; // type: 1 byte; length: 4 bytes
     private final DataOutputStream dos;

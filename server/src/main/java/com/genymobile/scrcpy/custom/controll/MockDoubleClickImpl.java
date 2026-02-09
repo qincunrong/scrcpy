@@ -11,7 +11,7 @@ import com.genymobile.scrcpy.util.Logger;
 
 public class MockDoubleClickImpl {
     
-    private static final String TAG = ScrcpyConfig.getLogGroup()+"MockDoubleClickImpl";
+    private static final String TAG ="MockDoubleClickImpl";
     public void startDoubleClick(int displayId, int startX, int startY) {
         try {
 

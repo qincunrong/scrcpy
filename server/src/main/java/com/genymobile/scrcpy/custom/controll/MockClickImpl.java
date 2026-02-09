@@ -11,7 +11,7 @@ import com.genymobile.scrcpy.util.Logger;
 
 public class MockClickImpl {
 
-    private static final String TAG = ScrcpyConfig.getLogGroup()+"MockClickImpl";
+    private static final String TAG = "MockClickImpl";
     public void startClick(int displayId,int startX, int startY) {
         try {
             Logger.i(TAG,"startClick, x:%d, y:%d",startX,startY);

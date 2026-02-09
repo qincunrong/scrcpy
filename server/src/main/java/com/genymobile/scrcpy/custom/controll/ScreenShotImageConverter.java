@@ -7,9 +7,6 @@ import android.graphics.PixelFormat;
 import android.graphics.Rect;
 import android.graphics.YuvImage;
 import android.media.Image;
-import android.util.Log;
-
-import com.genymobile.scrcpy.custom.ScrcpyConfig;
 import com.genymobile.scrcpy.util.FileUtils;
 import com.genymobile.scrcpy.util.Logger;
 
@@ -21,7 +18,7 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 
 public class ScreenShotImageConverter {
-    private static final String TAG = ScrcpyConfig.getLogGroup()+ "ScreenShotConverter";
+    private static final String TAG = "ScreenShotConverter";
     private String mImagePath;
     public ScreenShotImageConverter(String imagePath) {
         mImagePath = imagePath;
@@ -102,7 +99,7 @@ public class ScreenShotImageConverter {
                 return yuv420888ToBitmap(image, width, height);
                 
             default:
-                Log.w(TAG, "Unsupported image format: " + format);
+                Logger.w(TAG, "Unsupported image format: " + format);
                 return null;
         }
     }
@@ -190,7 +187,7 @@ public class ScreenShotImageConverter {
             try {
                 closeable.close();
             } catch (IOException e) {
-                Log.e(TAG, "Error closing stream", e);
+                Logger.e(TAG, "Error closing stream", e);
             }
         }
     }

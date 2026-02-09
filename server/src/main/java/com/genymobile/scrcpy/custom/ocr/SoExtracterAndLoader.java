@@ -4,9 +4,7 @@ package com.genymobile.scrcpy.custom.ocr;
 import android.content.Context;
 import android.os.Build;
 import android.system.Os;
-import android.util.Log;
-
-import com.genymobile.scrcpy.custom.ScrcpyConfig;
+import com.genymobile.scrcpy.util.Logger;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -17,7 +15,7 @@ import java.lang.reflect.Field;
 import java.util.List;
 
 public class SoExtracterAndLoader {
-    private static final String TAG = ScrcpyConfig.getLogGroup()+ "TessSoLoader";
+    private static final String TAG =  "TessSoLoader";
     private static boolean isLoaded = false;
     
     // tess-two 依赖的 so 库列表（按依赖顺序）
@@ -43,16 +41,16 @@ public class SoExtracterAndLoader {
         try {
             // 1. 获取设备 ABI
             String abi = getDeviceAbi();
-            Log.i(TAG, "nativeDeviceABI: " + abi);
+            Logger.i(TAG, "nativeDeviceABI: " + abi);
             
             // 2. 提取 so 库到临时目录
             File nativeLibDir = null;
             try {
                 nativeLibDir = extractSoLibraries(baseDir, abi);
-                Log.i(TAG, "nativeLibDir:" + nativeLibDir.getAbsolutePath());
+                Logger.i(TAG, "nativeLibDir:" + nativeLibDir.getAbsolutePath());
             } catch (IOException e) {
                 e.printStackTrace();
-                Log.i(TAG, "extractSoLibraries exception:" + e.getMessage());
+                Logger.i(TAG, "extractSoLibraries exception:" + e.getMessage());
             }
 
             // 3. 修改 LD_LIBRARY_PATH
@@ -62,18 +60,18 @@ public class SoExtracterAndLoader {
             for (String libName : SO_LIBRARIES) {
                 String libPath = new File(nativeLibDir, libName).getAbsolutePath();
                 try {
-                    Log.i(TAG, "nativeLoadingLib: " + libPath);
+                    Logger.i(TAG, "nativeLoadingLib: " + libPath);
                     System.load(libPath);
-                    Log.i(TAG, "nativeLoadingLib: " + libPath+", load success");
+                    Logger.i(TAG, "nativeLoadingLib: " + libPath+", load success");
                 } catch (Exception e) {
                     throw new RuntimeException(e);
                 }
             }
             
             isLoaded = true;
-            Log.i(TAG, "nativeLoadingLib load all success");
+            Logger.i(TAG, "nativeLoadingLib load all success");
         } catch (Exception e) {
-            Log.e(TAG, "nativeLoadingLib, failed", e);
+            Logger.e(TAG, "nativeLoadingLib, failed", e);
             throw new RuntimeException("nativeLoadingLib, failed", e);
         }
     }
@@ -114,7 +112,7 @@ public class SoExtracterAndLoader {
         if (oldFiles != null) {
             for (File file : oldFiles) {
                 if (!file.delete()) {
-                    Log.w(TAG, "Failed to delete old file: " + file.getAbsolutePath());
+                    Logger.w(TAG, "Failed to delete old file: " + file.getAbsolutePath());
                 }
             }
         }
@@ -123,17 +121,17 @@ public class SoExtracterAndLoader {
         for (String libName : SO_LIBRARIES) {
             String srcSoPath = JAR_SO_DIR + "/" + abi + "/" + libName;
             try {
-                Log.i(TAG, "srcSoPath:" + srcSoPath);
+                Logger.i(TAG, "srcSoPath:" + srcSoPath);
 //                InputStream in = context.getAssets().open(assetPath);
                 InputStream in = SoExtracterAndLoader.class.getResourceAsStream(srcSoPath);
-                Log.i(TAG, "srcSoPath in:" + in);
+                Logger.i(TAG, "srcSoPath in:" + in);
                 OutputStream out = new FileOutputStream(new File(tempDir, libName));
                 byte[] buffer = new byte[8192];
                 int bytesRead;
                 while ((bytesRead = in.read(buffer)) != -1) {
                     out.write(buffer, 0, bytesRead);
                 }
-                Log.d(TAG, "Extracted: " + libName);
+                Logger.d(TAG, "Extracted: " + libName);
             } catch (IOException e) {
                 // 尝试其他可能的路径
                 String[] possiblePaths = {
@@ -155,7 +153,7 @@ public class SoExtracterAndLoader {
                         }
                         out.close();
                         extracted = true;
-                        Log.d(TAG, "Extracted from alternative path: " + path);
+                        Logger.d(TAG, "Extracted from alternative path: " + path);
                         break;
                     } catch (IOException ignored) {
                         // 继续尝试下一个路径
@@ -163,7 +161,7 @@ public class SoExtracterAndLoader {
                 }
                 
                 if (!extracted) {
-                    Log.w(TAG, "Could not find library in assets: " + libName);
+                    Logger.w(TAG, "Could not find library in assets: " + libName);
                 }
             }
         }
@@ -193,7 +191,7 @@ public class SoExtracterAndLoader {
             addLibraryPathToClassLoader(libPath);
             
         } catch (Exception e) {
-            Log.w(TAG, "Failed to modify library path: " + e.getMessage());
+            Logger.w(TAG, "Failed to modify library path: " + e.getMessage());
         }
     }
     
@@ -240,7 +238,7 @@ public class SoExtracterAndLoader {
                 nativeLibraryDirectories.add(0, new File(libPath));
                 
             } catch (Exception e) {
-                Log.e(TAG, "Failed to modify ClassLoader library path", e);
+                Logger.e(TAG, "Failed to modify ClassLoader library path", e);
             }
         }
     }
@@ -265,7 +263,7 @@ public class SoExtracterAndLoader {
                 tempDir.delete();
             }
         } catch (Exception e) {
-            Log.w(TAG, "Failed to cleanup temp files", e);
+            Logger.w(TAG, "Failed to cleanup temp files", e);
         }
     }
 }

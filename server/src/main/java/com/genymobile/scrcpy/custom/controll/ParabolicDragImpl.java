@@ -17,7 +17,7 @@ public class ParabolicDragImpl {
     private final boolean debugMode;
     private long mDownTime;
     private int mDisplayId;
-    public static final String TAG = ScrcpyConfig.getLogGroup() + "ParabolicDrag";
+    public static final String TAG =  "ParabolicDrag";
 
     public ParabolicDragImpl(int width, int height, boolean debug, int displayId) {
         this.screenWidth = width;

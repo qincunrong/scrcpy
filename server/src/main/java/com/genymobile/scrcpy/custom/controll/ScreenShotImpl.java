@@ -16,7 +16,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 
 public class ScreenShotImpl {
-    private static String TAG = ScrcpyConfig.getLogGroup() + "ScreenShotImpl";
+    private static String TAG =  "ScreenShotImpl";
     private HandlerThread mHandlerThread;
     private Handler mHandler;
     private VirtualDisplay mVirtualDisplay;

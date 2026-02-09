@@ -24,7 +24,7 @@ import java.util.List;
  */
 public class MockDragImpl {
     
-    private static final String TAG = ScrcpyConfig.getLogGroup()+"MockDragImpl";
+    private static final String TAG = "MockDragImpl";
     public void startDrag(int displayId, int startX, int startY,
                           int endX, int endY, long duration) {
         try {

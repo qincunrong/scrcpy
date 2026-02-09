@@ -1,9 +1,8 @@
 // TessSoLoader.java - 手动加载so库
 package com.genymobile.scrcpy.custom.ocr;
 
-import android.util.Log;
-
 import com.genymobile.scrcpy.custom.ScrcpyConfig;
+import com.genymobile.scrcpy.util.Logger;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -12,7 +11,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 
 public class AssetsExtractor {
-    private static final String TAG = ScrcpyConfig.getLogGroup()+"AssetsFileExtractor";
+    private static final String TAG = "AssetsFileExtractor";
     private static boolean isLoaded = false;
     private static String mBaseDir= ScrcpyConfig.getBaseAssetsDir();
     private static final String ASSETS_SO_DIR = "/assets";
@@ -31,15 +30,15 @@ public class AssetsExtractor {
             File extractAssets = null;
             try {
                 extractAssets = extractAssetsLibraries();
-                Log.i(TAG, "extractAssets:" + extractAssets.getAbsolutePath());
+                Logger.i(TAG, "extractAssets:" + extractAssets.getAbsolutePath());
             } catch (IOException e) {
                 e.printStackTrace();
-                Log.i(TAG, "extractAssets exception:" + e.getMessage());
+                Logger.i(TAG, "extractAssets exception:" + e.getMessage());
             }
             isLoaded = true;
-            Log.i(TAG, "extractAssets load all success");
+            Logger.i(TAG, "extractAssets load all success");
         } catch (Exception e) {
-            Log.e(TAG, "extractAssets, failed", e);
+            Logger.e(TAG, "extractAssets, failed", e);
             throw new RuntimeException("nativeLoadingLib, failed", e);
         }
     }
@@ -57,7 +56,7 @@ public class AssetsExtractor {
         if (oldFiles != null) {
             for (File file : oldFiles) {
                 if (!file.delete()) {
-                    Log.w(TAG, "Failed to delete old file: " + file.getAbsolutePath());
+                    Logger.w(TAG, "Failed to delete old file: " + file.getAbsolutePath());
                 }
             }
         }
@@ -66,17 +65,17 @@ public class AssetsExtractor {
         for (String libName : ASSETS_FILES) {
             String assetFile = ASSETS_SO_DIR + "/"  + libName;
             try {
-                Log.i(TAG, "assetFile:" + assetFile);
+                Logger.i(TAG, "assetFile:" + assetFile);
 //                InputStream in = context.getAssets().open(assetPath);
                 InputStream in = AssetsExtractor.class.getResourceAsStream(assetFile);
-                Log.i(TAG, "assetFile in:" + in);
+                Logger.i(TAG, "assetFile in:" + in);
                 OutputStream out = new FileOutputStream(new File(tempDir, libName));
                 byte[] buffer = new byte[8192];
                 int bytesRead;
                 while ((bytesRead = in.read(buffer)) != -1) {
                     out.write(buffer, 0, bytesRead);
                 }
-                Log.d(TAG, "assetFile copy success: " + libName);
+                Logger.d(TAG, "assetFile copy success: " + libName);
             } catch (IOException e) {
                 // 尝试其他可能的路径
                 e.printStackTrace();

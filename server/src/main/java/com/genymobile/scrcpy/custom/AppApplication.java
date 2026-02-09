@@ -9,7 +9,7 @@ import java.io.File;
 public class AppApplication {
 
     private static volatile AppApplication singleton = null;
-    private String TAG = ScrcpyConfig.getLogGroup()+"CacheClear";
+    private String TAG = "AppApplication";
     private AppApplication() {}
 
     public static AppApplication getInstance() {

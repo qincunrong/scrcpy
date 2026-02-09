@@ -16,7 +16,7 @@ import java.util.Arrays;
 import java.util.List;
 
 public class ArcDragImpl {
-    public static final String TAG = ScrcpyConfig.getLogGroup() + "ArcDrag";
+    public static final String TAG =  "ArcDrag";
     private final boolean debugMode;
     private long mDownTime;
     private int mDisplayId;
